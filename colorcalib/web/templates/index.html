@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cross-camera color calibration</title>
+<style>
+  :root { --line:#d0d4da; --bad:#b02a37; --ok:#1a7f4b; --warn:#9a6b00; }
+  * { box-sizing: border-box; }
+  body { font:14px/1.5 -apple-system, "Segoe UI", Roboto, sans-serif; margin:0; color:#1f2430; background:#f6f7f9; }
+  header { background:#1f2430; color:#fff; padding:16px 28px; }
+  header h1 { margin:0; font-size:18px; }
+  header p { margin:4px 0 0; color:#b9c0cc; font-size:13px; }
+  main { max-width:1180px; margin:24px auto; padding:0 20px; }
+  .panel { background:#fff; border:1px solid var(--line); border-radius:10px; padding:20px; margin-bottom:22px; }
+  .panel h2 { margin:0 0 14px; font-size:16px; }
+  label { display:block; font-weight:600; margin:10px 0 4px; }
+  input[type=file], select { width:100%; padding:8px; border:1px solid var(--line); border-radius:6px; background:#fff; }
+  button { background:#2456d6; color:#fff; border:0; border-radius:6px; padding:10px 18px; font-weight:600; cursor:pointer; margin-top:14px; }
+  button:disabled { background:#9aa7c2; cursor:default; }
+  .hint { color:#5b6472; font-size:12px; margin-top:6px; }
+  .cards { display:flex; gap:12px; flex-wrap:wrap; }
+  .card { border:1px solid var(--line); border-radius:8px; padding:10px 14px; min-width:150px; background:#fafbfc; }
+  .card .k { font-size:11px; color:#5b6472; text-transform:uppercase; letter-spacing:.04em; }
+  .card .v { font-size:20px; font-weight:700; font-variant-numeric:tabular-nums; }
+  table { border-collapse:collapse; width:100%; font-size:12px; }
+  th,td { border:1px solid var(--line); padding:5px 8px; text-align:left; }
+  th { background:#eef1f5; position:sticky; top:0; }
+  td.num { font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .sw { display:inline-block; width:20px; height:20px; border:1px solid #888; border-radius:3px; vertical-align:middle; }
+  .badge { display:inline-block; padding:1px 7px; border-radius:9px; font-size:11px; margin:1px; }
+  .badge.bad { background:#f8d7da; color:var(--bad); }
+  .badge.ok { background:#d4edda; color:var(--ok); }
+  .role { padding:1px 7px; border-radius:7px; font-size:11px; }
+  .role-train { background:#e2e8ff; } .role-excl { background:#f8d7da; }
+  tr.role-excl { opacity:.6; }
+  .warn li { margin:3px 0; }
+  .warn.bad { border-left:4px solid var(--bad); }
+  .warn.mid { border-left:4px solid var(--warn); }
+  .muted { color:#5b6472; }
+  pre { background:#f4f5f7; padding:10px; border-radius:6px; overflow:auto; font-size:11px; max-height:260px; }
+  .err { background:#f8d7da; color:var(--bad); padding:10px 14px; border-radius:6px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media (max-width:860px){ .grid2 { grid-template-columns:1fr; } }
+  img.preview { max-width:100%; border:1px solid var(--line); border-radius:6px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Cross-camera color calibration</h1>
+  <p>Fit an interpretable linear-light color mapping from a reference chart and apply it to product images. No saturation/hue sliders — every number is measured and validated.</p>
+</header>
+<main>
+  <section class="panel">
+    <h2>1 · Calibrate from a chart</h2>
+    <form id="calForm">
+      <div class="grid2">
+        <div>
+          <label>Chart photo</label>
+          <input type="file" name="chart" accept="image/*" required>
+          <div class="hint">A photo of a matte color chart under the same lighting as the products. Auto-detection is used; on failure you can supply manual corners.</div>
+        </div>
+        <div>
+          <label>Reference values JSON (optional — defaults to ColorChecker 24, D50 Lab)</label>
+          <input type="file" name="reference" accept=".json">
+          <div class="hint">Must declare its color space (Lab/illuminant or sRGB/encoding). Encoded RGB and reference Lab are never mixed.</div>
+        </div>
+      </div>
+      <label>Mapping model</label>
+      <select name="model">
+        {% for m in models %}<option value="{{ m }}">{{ m }}</option>{% endfor %}
+      </select>
+      <div class="hint">matrix3 = 9-param white-preserving matrix · affine3x4 = +offsets · poly3 = quadratic (watch cross-validated error for overfit).</div>
+      <button type="submit" id="calBtn">Fit mapping</button>
+    </form>
+    <div id="calError" class="err" style="display:none;margin-top:14px"></div>
+  </section>
+
+  <section id="results" style="display:none">
+    <div class="panel">
+      <h2>2 · Error summary — training residual vs independent cross-validation</h2>
+      <div id="summaryCards" class="cards"></div>
+      <h3 style="font-size:14px;margin:18px 0 8px">Warnings and scope limits</h3>
+      <ul id="warnings" class="warn mid"></ul>
+      <h3 style="font-size:14px;margin:18px 0 8px">Fitted coefficients (camera-linear → reference-linear)</h3>
+      <pre id="coefBox"></pre>
+      <p><img id="preview" class="preview" alt="unwarped chart"></p>
+      <p>
+        <a id="dlMapping"><button type="button">Download mapping JSON</button></a>
+        <a id="dlReport" target="_blank"><button type="button" style="background:#444">Open full HTML report</button></a>
+      </p>
+    </div>
+
+    <div class="panel">
+      <h2>3 · Per-patch adopted values and residuals</h2>
+      <table>
+        <thead><tr>
+          <th>#</th><th>patch</th><th>adopted</th><th>reference</th>
+          <th>adopted sRGB</th><th>ref Lab D50</th>
+          <th>ΔE2000 fit</th><th>ΔE2000 CV</th><th>linear RGB residual</th>
+          <th>IRLS</th><th>diagnostics</th><th>role</th>
+        </tr></thead>
+        <tbody id="patchRows"></tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h2>4 · Batch-apply to product images</h2>
+      <input type="file" id="productFiles" accept="image/*" multiple>
+      <div class="hint">Images shot under the same conditions. Pixels outside the calibration range are reported, not silently hidden.</div>
+      <button type="button" id="applyBtn">Apply mapping</button>
+      <div id="applyOut" style="margin-top:14px"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const $ = (s) => document.querySelector(s);
+let currentJob = null;
+let referenceSrgb = null;
+
+function swatch(rgb) {
+  const c = rgb.map(v => Math.round(Math.max(0, Math.min(1, v)) * 255));
+  return `<span class="sw" style="background:rgb(${c.join(",")})" title="sRGB ${c.join(",")}"></span>`;
+}
+function card(k, v) {
+  return `<div class="card"><div class="k">${k}</div><div class="v">${v}</div></div>`;
+}
+
+$("#calForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  $("#calError").style.display = "none";
+  $("#calBtn").disabled = true;
+  const fd = new FormData(e.target);
+  try {
+    const r = await fetch("/calibrate", { method: "POST", body: fd });
+    const data = await r.json();
+    if (!r.ok) {
+      $("#calError").textContent = data.error + (data.needs_manual_corners ? " — provide manual corners." : "");
+      $("#calError").style.display = "block";
+      return;
+    }
+    renderResults(data);
+  } catch (err) {
+    $("#calError").textContent = "request failed: " + err;
+    $("#calError").style.display = "block";
+  } finally {
+    $("#calBtn").disabled = false;
+  }
+});
+
+function renderResults(data) {
+  currentJob = data.job_id;
+  referenceSrgb = data.reference_srgb;
+  $("#results").style.display = "block";
+  const s = data.summary;
+  const cards = [];
+  for (const [k, v] of Object.entries(s.train)) cards.push(card("train " + k, v));
+  for (const [k, v] of Object.entries(s.validation)) cards.push(card("CV " + k, v));
+  cards.push(card("usable patches", s.detection.n_usable + " / " + (s.detection.rows * s.detection.cols)));
+  $("#summaryCards").innerHTML = cards.join("");
+  $("#warnings").innerHTML = (s.warnings.length
+    ? s.warnings.map(w => `<li>${w}</li>`).join("")
+    : '<li class="muted">none</li>');
+  $("#coefBox").textContent =
+    "features: " + s.feature_names.join(", ") +
+    "\nwhite gains: " + JSON.stringify(s.white_gains) +
+    "\ncoefficients:\n" + JSON.stringify(s.coefficients, null, 2);
+  $("#dlMapping").href = data.download_mapping;
+  $("#dlReport").href = data.download_report;
+  if (data.preview) { $("#preview").src = data.preview; $("#preview").style.display = "block"; }
+
+  $("#patchRows").innerHTML = data.patches.map(p => {
+    const dg = p.diagnoses;
+    const badges = (dg.reject_reasons && dg.reject_reasons.length)
+      ? dg.reject_reasons.map(r => `<span class="badge bad">${r}</span>`).join("")
+      : '<span class="badge ok">clean</span>';
+    const cvDe = dg.cv_delta_e2000 ?? "—";
+    const resid = p.residual_linear_rgb ? p.residual_linear_rgb.map(v => (v >= 0 ? "+" : "") + v.toFixed(4)).join(", ") : "—";
+    return `<tr class="role-${p.role.replace("+", "")}">
+      <td>${p.index}</td><td>${p.name}</td>
+      <td>${swatch(p.adopted_srgb)}</td>
+      <td>${swatch(referenceSrgb[p.index])}</td>
+      <td class="num">${p.adopted_srgb.map(v => v.toFixed(3)).join(", ")}</td>
+      <td class="num">${p.reference_lab_d50.map(v => v.toFixed(1)).join(", ")}</td>
+      <td class="num">${p.delta_e2000 ?? "—"}</td>
+      <td class="num">${cvDe}</td>
+      <td class="num">${resid}</td>
+      <td class="num">${p.irls_weight ?? "—"}</td>
+      <td>${badges}</td>
+      <td><span class="role role-${p.role.replace("+", "")}">${p.role}</span></td>
+    </tr>`;
+  }).join("");
+}
+
+$("#applyBtn").addEventListener("click", async () => {
+  const files = $("#productFiles").files;
+  if (!files.length || !currentJob) return;
+  const fd = new FormData();
+  fd.append("job_id", currentJob);
+  for (const f of files) fd.append("images", f);
+  const r = await fetch("/apply", { method: "POST", body: fd });
+  const data = await r.json();
+  if (!r.ok) { $("#applyOut").innerHTML = `<div class="err">${data.error}</div>`; return; }
+  $("#applyOut").innerHTML = `<table><thead><tr>
+    <th>image</th><th>status</th><th>above calibration range</th>
+    <th>below range</th><th>negative output clipped</th><th>over-1 clipped</th>
+    </tr></thead><tbody>` + data.images.map(im => `<tr>
+      <td>${im.image}</td><td>${im.status}</td>
+      <td class="num">${(100 * (im.fraction_above_calibration_range ?? 0)).toFixed(2)}%</td>
+      <td class="num">${(100 * (im.fraction_below_calibration_range ?? 0)).toFixed(2)}%</td>
+      <td class="num">${(100 * (im.fraction_negative_output_clipped ?? 0)).toFixed(2)}%</td>
+      <td class="num">${(100 * (im.fraction_output_above_1_clipped ?? 0)).toFixed(2)}%</td>
+    </tr>`).join("") + "</tbody></table>";
+});
+</script>
+</body>
+</html>

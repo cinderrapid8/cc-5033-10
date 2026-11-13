@@ -1,0 +1,16 @@
+pyproject.toml
+colorcalib/__init__.py
+colorcalib/apply.py
+colorcalib/charts.py
+colorcalib/cli.py
+colorcalib/colorspace.py
+colorcalib/detection.py
+colorcalib/pipeline.py
+colorcalib/report.py
+colorcalib.egg-info/PKG-INFO
+colorcalib.egg-info/SOURCES.txt
+colorcalib.egg-info/dependency_links.txt
+colorcalib.egg-info/entry_points.txt
+colorcalib.egg-info/requires.txt
+colorcalib.egg-info/top_level.txt
+tests/test_pipeline.py

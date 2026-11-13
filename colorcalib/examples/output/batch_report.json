@@ -1,0 +1,70 @@
+{
+  "mapping": "examples/output/map_nominal.json",
+  "model": "matrix3",
+  "n_images": 7,
+  "images": [
+    {
+      "image": "product_clipped.png",
+      "status": "ok",
+      "output": "product_clipped_calibrated.png",
+      "fraction_above_calibration_range": 0.0,
+      "fraction_below_calibration_range": 0.0,
+      "fraction_negative_output_clipped": 0.0,
+      "fraction_output_above_1_clipped": 0.0
+    },
+    {
+      "image": "product_nominal.png",
+      "status": "ok",
+      "output": "product_nominal_calibrated.png",
+      "fraction_above_calibration_range": 0.0,
+      "fraction_below_calibration_range": 0.0,
+      "fraction_negative_output_clipped": 0.0,
+      "fraction_output_above_1_clipped": 0.0
+    },
+    {
+      "image": "product_overexposed.png",
+      "status": "ok",
+      "output": "product_overexposed_calibrated.png",
+      "fraction_above_calibration_range": 0.29859375,
+      "fraction_below_calibration_range": 0.0,
+      "fraction_negative_output_clipped": 0.0,
+      "fraction_output_above_1_clipped": 0.18684895833333334
+    },
+    {
+      "image": "product_perspective.png",
+      "status": "ok",
+      "output": "product_perspective_calibrated.png",
+      "fraction_above_calibration_range": 0.1483203125,
+      "fraction_below_calibration_range": 0.0,
+      "fraction_negative_output_clipped": 0.009518229166666666,
+      "fraction_output_above_1_clipped": 0.0881640625
+    },
+    {
+      "image": "product_sheen.png",
+      "status": "ok",
+      "output": "product_sheen_calibrated.png",
+      "fraction_above_calibration_range": 0.0,
+      "fraction_below_calibration_range": 0.0,
+      "fraction_negative_output_clipped": 0.001484375,
+      "fraction_output_above_1_clipped": 0.0
+    },
+    {
+      "image": "product_underexposed.png",
+      "status": "ok",
+      "output": "product_underexposed_calibrated.png",
+      "fraction_above_calibration_range": 0.0,
+      "fraction_below_calibration_range": 0.0,
+      "fraction_negative_output_clipped": 0.0,
+      "fraction_output_above_1_clipped": 0.0
+    },
+    {
+      "image": "product_warm_wb.png",
+      "status": "ok",
+      "output": "product_warm_wb_calibrated.png",
+      "fraction_above_calibration_range": 0.20338541666666668,
+      "fraction_below_calibration_range": 0.0,
+      "fraction_negative_output_clipped": 0.1630859375,
+      "fraction_output_above_1_clipped": 0.15140625
+    }
+  ]
+}

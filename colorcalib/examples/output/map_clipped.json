@@ -1,0 +1,1215 @@
+{
+  "model": "matrix3",
+  "coefficients": [
+    [
+      1.13939018,
+      -0.07984424,
+      -0.05723597
+    ],
+    [
+      -0.08419066,
+      1.23702437,
+      -0.13804711
+    ],
+    [
+      -0.05833773,
+      -0.15520475,
+      1.2000644
+    ]
+  ],
+  "white_gains": [
+    1.011255,
+    1.00368,
+    1.003868
+  ],
+  "feature_names": [
+    "R",
+    "G",
+    "B"
+  ],
+  "fit_meta": {
+    "condition_number": 74.661647617331,
+    "dof": 57,
+    "irls_weights": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      0.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      0.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "perceptual_row_weights": [
+      1.2723,
+      0.3712,
+      0.8376,
+      1.0467,
+      0.6437,
+      0.3615,
+      0.3794,
+      1.5428,
+      0.5998,
+      2.1987,
+      0.3069,
+      0.2842,
+      2.8065,
+      1.1641,
+      0.9204,
+      0.618,
+      0.8822,
+      0.2385,
+      0.3874,
+      0.7334,
+      1.5984,
+      2.8065
+    ],
+    "n_samples": 22,
+    "n_parameters": 9,
+    "input_range_min": [
+      0.02989,
+      0.029666,
+      0.02226
+    ],
+    "input_range_max": [
+      0.731193,
+      0.592792,
+      0.592904
+    ]
+  },
+  "train_summary": {
+    "deltaE2000_mean": 1.3562,
+    "deltaE2000_median": 0.6698,
+    "deltaE2000_p95": 3.5188,
+    "deltaE2000_max": 5.9649,
+    "rmse_linear_rgb": 0.0041
+  },
+  "validation_summary": {
+    "deltaE2000_mean": 1.4086,
+    "deltaE2000_median": 0.6983,
+    "deltaE2000_p95": 3.9494,
+    "deltaE2000_max": 5.9911,
+    "method": "4-fold cross-validation"
+  },
+  "patch_records": [
+    {
+      "index": 0,
+      "name": "dark_skin",
+      "adopted_srgb": [
+        0.43529,
+        0.32549,
+        0.31373
+      ],
+      "camera_linear_wb": [
+        0.16075,
+        0.086819,
+        0.08053
+      ],
+      "reference_lab_d50": [
+        37.99,
+        13.56,
+        14.06
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0,
+          0.0134,
+          0.0134
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 5.991,
+        "cv_residual_linear_rgb": [
+          -0.001344,
+          0.000389,
+          -0.001431
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 5.965,
+      "residual_linear_rgb": [
+        -0.001154,
+        0.00038,
+        -0.001446
+      ],
+      "irls_weight": 1.0
+    },
+    {
+      "index": 1,
+      "name": "light_skin",
+      "adopted_srgb": [
+        0.75294,
+        0.58824,
+        0.57647
+      ],
+      "camera_linear_wb": [
+        0.533048,
+        0.30611,
+        0.292899
+      ],
+      "reference_lab_d50": [
+        65.71,
+        18.13,
+        17.81
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 3.536,
+        "cv_residual_linear_rgb": [
+          -0.002029,
+          -0.000695,
+          0.002135
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 3.53,
+      "residual_linear_rgb": [
+        -0.001543,
+        -0.000766,
+        0.002022
+      ],
+      "irls_weight": 1.0
+    },
+    {
+      "index": 2,
+      "name": "blue_sky",
+      "adopted_srgb": [
+        0.38039,
+        0.47451,
+        0.47059
+      ],
+      "camera_linear_wb": [
+        0.120884,
+        0.191905,
+        0.188547
+      ],
+      "reference_lab_d50": [
+        49.93,
+        -4.88,
+        -21.93
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0123,
+          0.0,
+          0.0
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 1.199,
+        "cv_residual_linear_rgb": [
+          0.001304,
+          -0.000471,
+          -0.002148
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 1.037,
+      "residual_linear_rgb": [
+        0.001551,
+        -0.00042,
+        -0.001841
+      ],
+      "irls_weight": 1.0
+    },
+    {
+      "index": 3,
+      "name": "foliage",
+      "adopted_srgb": [
+        0.35294,
+        0.41569,
+        0.42745
+      ],
+      "camera_linear_wb": [
+        0.103393,
+        0.144659,
+        0.153518
+      ],
+      "reference_lab_d50": [
+        43.14,
+        -13.1,
+        21.91
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 0.181,
+        "cv_residual_linear_rgb": [
+          -0.00105,
+          0.00023,
+          0.000322
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 0.438,
+      "residual_linear_rgb": [
+        -0.000729,
+        0.00025,
+        0.000155
+      ],
+      "irls_weight": 1.0
+    },
+    {
+      "index": 4,
+      "name": "blue_flower",
+      "adopted_srgb": [
+        0.51373,
+        0.50588,
+        0.4902
+      ],
+      "camera_linear_wb": [
+        0.22952,
+        0.220334,
+        0.205872
+      ],
+      "reference_lab_d50": [
+        55.11,
+        8.84,
+        -25.4
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 0.4,
+        "cv_residual_linear_rgb": [
+          0.000169,
+          0.001872,
+          0.001463
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 0.291,
+      "residual_linear_rgb": [
+        0.000274,
+        0.001377,
+        0.001056
+      ],
+      "irls_weight": 1.0
+    },
+    {
+      "index": 5,
+      "name": "bluish_green",
+      "adopted_srgb": [
+        0.42745,
+        0.72549,
+        0.74902
+      ],
+      "camera_linear_wb": [
+        0.154647,
+        0.486935,
+        0.523011
+      ],
+      "reference_lab_d50": [
+        70.72,
+        -33.4,
+        -0.2
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0078,
+          0.0,
+          0.0
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 3.971,
+        "cv_residual_linear_rgb": [
+          -0.000515,
+          -0.002889,
+          0.001801
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 3.308,
+      "residual_linear_rgb": [
+        0.002118,
+        -0.002557,
+        0.001104
+      ],
+      "irls_weight": 1.0
+    },
+    {
+      "index": 6,
+      "name": "orange",
+      "adopted_srgb": [
+        0.83922,
+        0.51373,
+        0.48235
+      ],
+      "camera_linear_wb": [
+        0.680012,
+        0.227801,
+        0.198836
+      ],
+      "reference_lab_d50": [
+        62.66,
+        36.07,
+        57.1
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0,
+          0.0,
+          0.0069
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 1.78,
+        "cv_residual_linear_rgb": [
+          0.003927,
+          -0.000966,
+          -0.002342
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 1.865,
+      "residual_linear_rgb": [
+        0.002189,
+        -0.000864,
+        -0.002158
+      ],
+      "irls_weight": 1.0
+    },
+    {
+      "index": 7,
+      "name": "purplish_blue",
+      "adopted_srgb": [
+        0.29804,
+        0.36078,
+        0.33333
+      ],
+      "camera_linear_wb": [
+        0.073085,
+        0.107417,
+        0.091193
+      ],
+      "reference_lab_d50": [
+        40.02,
+        10.41,
+        -45.96
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0161,
+          0.0,
+          0.0161
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 0.45,
+        "cv_residual_linear_rgb": [
+          -0.000693,
+          0.000751,
+          -0.000569
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 0.534,
+      "residual_linear_rgb": [
+        -0.000949,
+        0.000912,
+        -0.000615
+      ],
+      "irls_weight": 0.0
+    },
+    {
+      "index": 8,
+      "name": "moderate_red",
+      "adopted_srgb": [
+        0.74118,
+        0.36863,
+        0.30588
+      ],
+      "camera_linear_wb": [
+        0.514609,
+        0.112344,
+        0.07648
+      ],
+      "reference_lab_d50": [
+        51.12,
+        48.24,
+        16.25
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0,
+          0.0078,
+          0.0078
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 0.603,
+        "cv_residual_linear_rgb": [
+          0.004123,
+          8.3e-05,
+          0.000124
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 0.623,
+      "residual_linear_rgb": [
+        0.002793,
+        0.000191,
+        0.00037
+      ],
+      "irls_weight": 1.0
+    },
+    {
+      "index": 9,
+      "name": "purple",
+      "adopted_srgb": [
+        0.35686,
+        0.23922,
+        0.20784
+      ],
+      "camera_linear_wb": [
+        0.105794,
+        0.046837,
+        0.035739
+      ],
+      "reference_lab_d50": [
+        30.33,
+        22.98,
+        -21.59
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0163,
+          0.0163,
+          0.0163
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 0.296,
+        "cv_residual_linear_rgb": [
+          -0.001538,
+          -0.00088,
+          -0.000925
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 0.254,
+      "residual_linear_rgb": [
+        -0.000925,
+        -0.000815,
+        -0.000906
+      ],
+      "irls_weight": 1.0
+    },
+    {
+      "index": 10,
+      "name": "yellow_green",
+      "adopted_srgb": [
+        0.62353,
+        0.72941,
+        0.75294
+      ],
+      "camera_linear_wb": [
+        0.350606,
+        0.492828,
+        0.529154
+      ],
+      "reference_lab_d50": [
+        72.53,
+        -23.71,
+        57.26
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 3.004,
+        "cv_residual_linear_rgb": [
+          0.000803,
+          0.002167,
+          -0.001141
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 2.47,
+      "residual_linear_rgb": [
+        0.001309,
+        0.001715,
+        -0.001057
+      ],
+      "irls_weight": 1.0
+    },
+    {
+      "index": 11,
+      "name": "orange_yellow",
+      "adopted_srgb": [
+        0.86667,
+        0.64706,
+        0.63922
+      ],
+      "camera_linear_wb": [
+        0.731193,
+        0.377647,
+        0.367669
+      ],
+      "reference_lab_d50": [
+        71.94,
+        19.36,
+        67.86
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 0.375,
+        "cv_residual_linear_rgb": [
+          -0.00273,
+          -0.000382,
+          5.1e-05
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 0.535,
+      "residual_linear_rgb": [
+        -0.001873,
+        -0.000576,
+        -8.7e-05
+      ],
+      "irls_weight": 1.0
+    },
+    {
+      "index": 12,
+      "name": "blue",
+      "adopted_srgb": [
+        0.20784,
+        0.18824,
+        0.16078
+      ],
+      "camera_linear_wb": [
+        0.036002,
+        0.029666,
+        0.02226
+      ],
+      "reference_lab_d50": [
+        22.27,
+        15.69,
+        -34.7
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.028,
+          0.028,
+          0.028
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 0.149,
+        "cv_residual_linear_rgb": [
+          -0.000454,
+          -0.000154,
+          -0.000212
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 0.068,
+      "residual_linear_rgb": [
+        -0.000387,
+        -0.000124,
+        -7.1e-05
+      ],
+      "irls_weight": 1.0
+    },
+    {
+      "index": 13,
+      "name": "green",
+      "adopted_srgb": [
+        0.21176,
+        0.42745,
+        0.44706
+      ],
+      "camera_linear_wb": [
+        0.037305,
+        0.153489,
+        0.16892
+      ],
+      "reference_lab_d50": [
+        42.1,
+        -31.95,
+        22.79
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.013,
+          0.0,
+          0.0
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 2.751,
+        "cv_residual_linear_rgb": [
+          -0.000958,
+          -3e-05,
+          -0.001283
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 3.262,
+      "residual_linear_rgb": [
+        -0.000381,
+        4.1e-05,
+        -0.001517
+      ],
+      "irls_weight": 1.0
+    },
+    {
+      "index": 14,
+      "name": "red",
+      "adopted_srgb": [
+        0.64706,
+        0.25098,
+        0.16471
+      ],
+      "camera_linear_wb": [
+        0.380497,
+        0.051458,
+        0.023243
+      ],
+      "reference_lab_d50": [
+        40.95,
+        52.25,
+        25.63
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0,
+          0.009,
+          0.009
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 0.311,
+        "cv_residual_linear_rgb": [
+          -0.001432,
+          -2.2e-05,
+          0.000694
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 0.151,
+      "residual_linear_rgb": [
+        -0.001228,
+        -0.000122,
+        0.000493
+      ],
+      "irls_weight": 1.0
+    },
+    {
+      "index": 15,
+      "name": "yellow",
+      "adopted_srgb": [
+        0.99608,
+        0.78039,
+        0.78824
+      ],
+      "camera_linear_wb": [
+        1.002257,
+        0.573227,
+        0.586338
+      ],
+      "reference_lab_d50": [
+        81.73,
+        4.04,
+        79.82
+      ],
+      "diagnoses": {
+        "clipped": true,
+        "near_clipped": true,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "reject_reasons": [
+          "channel_clipped"
+        ]
+      },
+      "role": "excluded",
+      "delta_e2000": null,
+      "residual_linear_rgb": null,
+      "irls_weight": null
+    },
+    {
+      "index": 16,
+      "name": "magenta",
+      "adopted_srgb": [
+        0.72549,
+        0.37647,
+        0.29804
+      ],
+      "camera_linear_wb": [
+        0.490611,
+        0.117401,
+        0.072551
+      ],
+      "reference_lab_d50": [
+        51.94,
+        49.99,
+        -14.57
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0,
+          0.0,
+          0.008
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 0.26,
+        "cv_residual_linear_rgb": [
+          0.000572,
+          0.000875,
+          0.000542
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 0.218,
+      "residual_linear_rgb": [
+        0.000797,
+        0.000383,
+        2.4e-05
+      ],
+      "irls_weight": 1.0
+    },
+    {
+      "index": 17,
+      "name": "cyan",
+      "adopted_srgb": [
+        0.18824,
+        0.52157,
+        0.52941
+      ],
+      "camera_linear_wb": [
+        0.02989,
+        0.235414,
+        0.243218
+      ],
+      "reference_lab_d50": [
+        51.04,
+        -28.63,
+        -28.64
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.011,
+          0.0,
+          0.0
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 1.825,
+        "cv_residual_linear_rgb": [
+          0.03212,
+          0.001014,
+          -0.001328
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 1.767,
+      "residual_linear_rgb": [
+        0.031913,
+        0.000975,
+        -0.001284
+      ],
+      "irls_weight": 0.0
+    },
+    {
+      "index": 18,
+      "name": "white",
+      "adopted_srgb": [
+        0.99608,
+        0.96078,
+        0.96078
+      ],
+      "camera_linear_wb": [
+        1.002257,
+        0.916459,
+        0.916631
+      ],
+      "reference_lab_d50": [
+        96.54,
+        -0.43,
+        1.19
+      ],
+      "diagnoses": {
+        "clipped": true,
+        "near_clipped": true,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "reject_reasons": [
+          "channel_clipped"
+        ]
+      },
+      "role": "excluded",
+      "delta_e2000": null,
+      "residual_linear_rgb": null,
+      "irls_weight": null
+    },
+    {
+      "index": 19,
+      "name": "neutral_9",
+      "adopted_srgb": [
+        0.78431,
+        0.79216,
+        0.79216
+      ],
+      "camera_linear_wb": [
+        0.584081,
+        0.592792,
+        0.592904
+      ],
+      "reference_lab_d50": [
+        81.26,
+        -0.64,
+        -0.34
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 1.347,
+        "cv_residual_linear_rgb": [
+          -0.00178,
+          0.00228,
+          0.003878
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 0.717,
+      "residual_linear_rgb": [
+        0.001155,
+        0.002562,
+        0.003364
+      ],
+      "irls_weight": 1.0
+    },
+    {
+      "index": 20,
+      "name": "neutral_7_5",
+      "adopted_srgb": [
+        0.62745,
+        0.63529,
+        0.63529
+      ],
+      "camera_linear_wb": [
+        0.355489,
+        0.362636,
+        0.362704
+      ],
+      "reference_lab_d50": [
+        66.77,
+        -0.73,
+        -0.5
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 0.424,
+        "cv_residual_linear_rgb": [
+          -0.001955,
+          -0.001386,
+          -0.001053
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 0.455,
+      "residual_linear_rgb": [
+        -0.001711,
+        -0.001607,
+        -0.00128
+      ],
+      "irls_weight": 1.0
+    },
+    {
+      "index": 21,
+      "name": "neutral_6_5",
+      "adopted_srgb": [
+        0.47059,
+        0.47451,
+        0.47451
+      ],
+      "camera_linear_wb": [
+        0.189935,
+        0.191905,
+        0.191941
+      ],
+      "reference_lab_d50": [
+        50.87,
+        -0.15,
+        -0.27
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 0.894,
+        "cv_residual_linear_rgb": [
+          -0.001238,
+          0.000638,
+          0.001152
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 0.903,
+      "residual_linear_rgb": [
+        -0.001107,
+        0.000525,
+        0.001035
+      ],
+      "irls_weight": 1.0
+    },
+    {
+      "index": 22,
+      "name": "neutral_5",
+      "adopted_srgb": [
+        0.32157,
+        0.32941,
+        0.32941
+      ],
+      "camera_linear_wb": [
+        0.085326,
+        0.088982,
+        0.088999
+      ],
+      "reference_lab_d50": [
+        35.66,
+        -0.42,
+        -1.23
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0176,
+          0.0176,
+          0.0176
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 0.449,
+        "cv_residual_linear_rgb": [
+          -0.000882,
+          0.000452,
+          0.000607
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 0.61,
+      "residual_linear_rgb": [
+        -0.000924,
+        0.000468,
+        0.000691
+      ],
+      "irls_weight": 1.0
+    },
+    {
+      "index": 23,
+      "name": "black",
+      "adopted_srgb": [
+        0.18824,
+        0.19216,
+        0.19216
+      ],
+      "camera_linear_wb": [
+        0.02989,
+        0.030826,
+        0.030832
+      ],
+      "reference_lab_d50": [
+        20.46,
+        -0.08,
+        -0.97
+      ],
+      "diagnoses": {
+        "clipped": false,
+        "near_clipped": false,
+        "near_black": false,
+        "specular_sheen": false,
+        "nonuniform": false,
+        "cv_per_channel": [
+          0.0303,
+          0.0303,
+          0.0303
+        ],
+        "reject_reasons": [],
+        "cv_delta_e2000": 0.793,
+        "cv_residual_linear_rgb": [
+          -0.000735,
+          -0.000202,
+          -6.5e-05
+        ]
+      },
+      "role": "train+cv",
+      "delta_e2000": 0.836,
+      "residual_linear_rgb": [
+        -0.000719,
+        -0.000211,
+        -6.7e-05
+      ],
+      "irls_weight": 1.0
+    }
+  ],
+  "detection_summary": {
+    "method": "auto",
+    "confidence": 0.898,
+    "rows": 4,
+    "cols": 6,
+    "n_usable": 22,
+    "n_excluded": 2
+  },
+  "warnings": [
+    "2 patch(es) excluded by quality diagnostics"
+  ],
+  "reference_space": {
+    "type": "lab",
+    "illuminant": "D50",
+    "source": "X-Rite 2014"
+  },
+  "extrapolation": {}
+}

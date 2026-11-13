@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Color calibration report — xrite-colorchecker-classic-24</title>
+<style>
+ body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; color:#222; }
+ h1 { font-size: 20px; } h2 { font-size: 16px; margin-top: 28px; }
+ table { border-collapse: collapse; font-size: 12px; }
+ th, td { border: 1px solid #ccc; padding: 4px 7px; text-align: left; }
+ th { background: #f2f2f2; position: sticky; top: 0; }
+ td.num { font-variant-numeric: tabular-nums; }
+ .sw { display:inline-block; width:22px; height:22px; border:1px solid #999; vertical-align:middle; }
+ .badge { display:inline-block; padding:1px 6px; border-radius:8px; font-size:11px; margin:1px; }
+ .badge.bad { background:#f8d7da; color:#842029; }
+ .badge.ok { background:#d1e7dd; color:#0f5132; }
+ .role { padding:1px 6px; border-radius:6px; font-size:11px; }
+ .role-train { background:#e2e8ff; } .role-val { background:#fff3cd; }
+ .role-excl { background:#f8d7da; }
+ tr.role-excl { opacity: .55; }
+ .cards { display:flex; gap:14px; flex-wrap:wrap; }
+ .card { border:1px solid #bbb; border-radius:8px; padding:10px 14px; min-width:170px; }
+ .card .v { font-size:22px; font-weight:600; }
+ code { background:#f4f4f4; padding:1px 4px; }
+</style></head><body>
+<h1>Cross-camera color calibration report</h1>
+<p>Chart: <b>xrite-colorchecker-classic-24</b> &middot; detection:
+ <code>auto</code>
+ (confidence 0.896) &middot;
+ model: <code>matrix3</code> &middot;
+ usable patches: 24 /
+ 24</p>
+
+<h2>Error summary (CIEDE2000, separate train and held-out validation)</h2>
+<div class="cards">
+ <div class="card"><div>deltaE2000_mean</div><div class="v">1.2524</div></div><div class="card"><div>deltaE2000_median</div><div class="v">0.7981</div></div><div class="card"><div>deltaE2000_p95</div><div class="v">4.0607</div></div><div class="card"><div>deltaE2000_max</div><div class="v">6.9593</div></div><div class="card"><div>rmse_linear_rgb</div><div class="v">0.0042</div></div>
+</div>
+<h3>Validation (patches never seen by the fit)</h3>
+<div class="cards">
+ <div class="card"><div>deltaE2000_mean</div><div class="v">1.5114</div></div><div class="card"><div>deltaE2000_median</div><div class="v">1.1287</div></div><div class="card"><div>deltaE2000_p95</div><div class="v">4.1322</div></div><div class="card"><div>deltaE2000_max</div><div class="v">7.2173</div></div><div class="card"><div>method</div><div class="v">4-fold cross-validation</div></div>
+</div>
+
+<h2>Interpretable mapping (camera-linear RGB → reference-linear sRGB)</h2>
+<p>Features: <code>R, G, B</code>; white-balance gains (per channel):
+ <code>[1.397, 1.3988, 1.4008]</code>;
+ design condition number: 7.92e+01;
+ fit DoF: 63</p>
+<table><tbody><tr><td class='num'>1.13888</td><td class='num'>-0.07629</td><td class='num'>-0.05978</td></tr><tr><td class='num'>-0.00435</td><td class='num'>1.19605</td><td class='num'>-0.09595</td></tr><tr><td class='num'>-0.13194</td><td class='num'>-0.12084</td><td class='num'>1.15394</td></tr></tbody></table>
+
+<h2>Warnings and honest limitations</h2>
+<ul><li>none</li></ul>
+
+<h2>Per-patch adopted values and residuals</h2>
+<p>ΔE2000 (fit) is the production model's training residual on the full usable
+set; <b>ΔE2000 (CV)</b> is each patch's honest cross-validated error from a
+model that never saw it. IRLS weight 0 means influence-based hard rejection.</p>
+<table>
+<thead><tr><th>#</th><th>patch</th><th>adopted</th><th>reference</th>
+<th>adopted sRGB (0..1)</th><th>ref Lab D50</th><th>ΔE2000 (fit)</th>
+<th>ΔE2000 (CV)</th><th>linear RGB residual</th><th>IRLS weight</th>
+<th>diagnostics</th><th>role</th></tr></thead>
+<tbody><tr class="role-train">
+              <td>0</td>
+              <td>dark_skin</td>
+              <td><span class="sw" style="background:rgb(95,70,68)" title="sRGB 95,70,68"></span></td>
+              <td><span class="sw" style="background:rgb(115,81,78)" title="sRGB 115,81,78"></span></td>
+              <td class="num">0.373, 0.275, 0.267</td>
+              <td class="num">38.0, 13.6, 14.1</td>
+              <td class="num">0.23</td>
+              <td class="num">0.24</td>
+              <td class="num">-0.0013, -0.0012, -0.0012</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>1</td>
+              <td>light_skin</td>
+              <td><span class="sw" style="background:rgb(166,129,126)" title="sRGB 166,129,126"></span></td>
+              <td><span class="sw" style="background:rgb(198,147,143)" title="sRGB 198,147,143"></span></td>
+              <td class="num">0.651, 0.506, 0.494</td>
+              <td class="num">65.7, 18.1, 17.8</td>
+              <td class="num">0.81</td>
+              <td class="num">1.27</td>
+              <td class="num">+0.0008, -0.0001, -0.0008</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>2</td>
+              <td>blue_sky</td>
+              <td><span class="sw" style="background:rgb(82,104,103)" title="sRGB 82,104,103"></span></td>
+              <td><span class="sw" style="background:rgb(93,123,122)" title="sRGB 93,123,122"></span></td>
+              <td class="num">0.322, 0.408, 0.404</td>
+              <td class="num">49.9, -4.9, -21.9</td>
+              <td class="num">1.31</td>
+              <td class="num">1.61</td>
+              <td class="num">-0.0007, +0.0008, -0.0011</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>3</td>
+              <td>foliage</td>
+              <td><span class="sw" style="background:rgb(77,90,93)" title="sRGB 77,90,93"></span></td>
+              <td><span class="sw" style="background:rgb(88,107,111)" title="sRGB 88,107,111"></span></td>
+              <td class="num">0.302, 0.353, 0.365</td>
+              <td class="num">43.1, -13.1, 21.9</td>
+              <td class="num">2.36</td>
+              <td class="num">2.28</td>
+              <td class="num">-0.0002, -0.0020, -0.0012</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>4</td>
+              <td>blue_flower</td>
+              <td><span class="sw" style="background:rgb(112,110,107)" title="sRGB 112,110,107"></span></td>
+              <td><span class="sw" style="background:rgb(132,129,124)" title="sRGB 132,129,124"></span></td>
+              <td class="num">0.439, 0.431, 0.420</td>
+              <td class="num">55.1, 8.8, -25.4</td>
+              <td class="num">1.89</td>
+              <td class="num">2.47</td>
+              <td class="num">-0.0010, -0.0022, +0.0007</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>5</td>
+              <td>bluish_green</td>
+              <td><span class="sw" style="background:rgb(93,160,165)" title="sRGB 93,160,165"></span></td>
+              <td><span class="sw" style="background:rgb(90,189,196)" title="sRGB 90,189,196"></span></td>
+              <td class="num">0.365, 0.627, 0.647</td>
+              <td class="num">70.7, -33.4, -0.2</td>
+              <td class="num">0.13</td>
+              <td class="num">0.45</td>
+              <td class="num">-0.0001, +0.0014, +0.0014</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>6</td>
+              <td>orange</td>
+              <td><span class="sw" style="background:rgb(185,112,106)" title="sRGB 185,112,106"></span></td>
+              <td><span class="sw" style="background:rgb(224,123,115)" title="sRGB 224,123,115"></span></td>
+              <td class="num">0.725, 0.439, 0.416</td>
+              <td class="num">62.7, 36.1, 57.1</td>
+              <td class="num">6.96</td>
+              <td class="num">7.22</td>
+              <td class="num">+0.0025, -0.0025, +0.0003</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>7</td>
+              <td>purplish_blue</td>
+              <td><span class="sw" style="background:rgb(65,78,72)" title="sRGB 65,78,72"></span></td>
+              <td><span class="sw" style="background:rgb(75,94,85)" title="sRGB 75,94,85"></span></td>
+              <td class="num">0.255, 0.306, 0.282</td>
+              <td class="num">40.0, 10.4, -46.0</td>
+              <td class="num">0.38</td>
+              <td class="num">0.47</td>
+              <td class="num">+0.0018, -0.0011, -0.0009</td>
+              <td class="num">0.72</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>8</td>
+              <td>moderate_red</td>
+              <td><span class="sw" style="background:rgb(163,80,66)" title="sRGB 163,80,66"></span></td>
+              <td><span class="sw" style="background:rgb(199,83,61)" title="sRGB 199,83,61"></span></td>
+              <td class="num">0.639, 0.314, 0.259</td>
+              <td class="num">51.1, 48.2, 16.2</td>
+              <td class="num">0.52</td>
+              <td class="num">0.46</td>
+              <td class="num">+0.0025, +0.0001, +0.0003</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>9</td>
+              <td>purple</td>
+              <td><span class="sw" style="background:rgb(78,52,45)" title="sRGB 78,52,45"></span></td>
+              <td><span class="sw" style="background:rgb(95,60,49)" title="sRGB 95,60,49"></span></td>
+              <td class="num">0.306, 0.204, 0.176</td>
+              <td class="num">30.3, 23.0, -21.6</td>
+              <td class="num">0.17</td>
+              <td class="num">0.10</td>
+              <td class="num">+0.0007, +0.0001, +0.0002</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>10</td>
+              <td>yellow_green</td>
+              <td><span class="sw" style="background:rgb(137,160,166)" title="sRGB 137,160,166"></span></td>
+              <td><span class="sw" style="background:rgb(155,187,195)" title="sRGB 155,187,195"></span></td>
+              <td class="num">0.537, 0.627, 0.651</td>
+              <td class="num">72.5, -23.7, 57.3</td>
+              <td class="num">1.17</td>
+              <td class="num">1.50</td>
+              <td class="num">-0.0004, -0.0009, +0.0003</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>11</td>
+              <td>orange_yellow</td>
+              <td><span class="sw" style="background:rgb(191,142,140)" title="sRGB 191,142,140"></span></td>
+              <td><span class="sw" style="background:rgb(229,160,159)" title="sRGB 229,160,159"></span></td>
+              <td class="num">0.749, 0.557, 0.549</td>
+              <td class="num">71.9, 19.4, 67.9</td>
+              <td class="num">4.36</td>
+              <td class="num">4.32</td>
+              <td class="num">-0.0029, +0.0004, -0.0032</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>12</td>
+              <td>blue</td>
+              <td><span class="sw" style="background:rgb(44,40,34)" title="sRGB 44,40,34"></span></td>
+              <td><span class="sw" style="background:rgb(55,49,39)" title="sRGB 55,49,39"></span></td>
+              <td class="num">0.173, 0.157, 0.133</td>
+              <td class="num">22.3, 15.7, -34.7</td>
+              <td class="num">0.61</td>
+              <td class="num">0.96</td>
+              <td class="num">-0.0006, -0.0004, +0.0003</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>13</td>
+              <td>green</td>
+              <td><span class="sw" style="background:rgb(45,93,98)" title="sRGB 45,93,98"></span></td>
+              <td><span class="sw" style="background:rgb(39,112,118)" title="sRGB 39,112,118"></span></td>
+              <td class="num">0.176, 0.365, 0.384</td>
+              <td class="num">42.1, -31.9, 22.8</td>
+              <td class="num">1.25</td>
+              <td class="num">1.45</td>
+              <td class="num">-0.0016, -0.0010, -0.0004</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>14</td>
+              <td>red</td>
+              <td><span class="sw" style="background:rgb(142,54,35)" title="sRGB 142,54,35"></span></td>
+              <td><span class="sw" style="background:rgb(175,48,0)" title="sRGB 175,48,0"></span></td>
+              <td class="num">0.557, 0.212, 0.137</td>
+              <td class="num">41.0, 52.2, 25.6</td>
+              <td class="num">1.50</td>
+              <td class="num">3.07</td>
+              <td class="num">-0.0020, +0.0003, +0.0011</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>15</td>
+              <td>yellow</td>
+              <td><span class="sw" style="background:rgb(200,172,174)" title="sRGB 200,172,174"></span></td>
+              <td><span class="sw" style="background:rgb(236,196,200)" title="sRGB 236,196,200"></span></td>
+              <td class="num">0.784, 0.675, 0.682</td>
+              <td class="num">81.7, 4.0, 79.8</td>
+              <td class="num">0.61</td>
+              <td class="num">0.53</td>
+              <td class="num">+0.0034, +0.0020, +0.0012</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>16</td>
+              <td>magenta</td>
+              <td><span class="sw" style="background:rgb(159,82,64)" title="sRGB 159,82,64"></span></td>
+              <td><span class="sw" style="background:rgb(195,87,58)" title="sRGB 195,87,58"></span></td>
+              <td class="num">0.624, 0.322, 0.251</td>
+              <td class="num">51.9, 50.0, -14.6</td>
+              <td class="num">1.09</td>
+              <td class="num">1.56</td>
+              <td class="num">-0.0024, +0.0011, -0.0002</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>17</td>
+              <td>cyan</td>
+              <td><span class="sw" style="background:rgb(40,114,116)" title="sRGB 40,114,116"></span></td>
+              <td><span class="sw" style="background:rgb(0,137,139)" title="sRGB 0,137,139"></span></td>
+              <td class="num">0.157, 0.447, 0.455</td>
+              <td class="num">51.0, -28.6, -28.6</td>
+              <td class="num">0.46</td>
+              <td class="num">0.21</td>
+              <td class="num">+0.0323, -0.0004, -0.0010</td>
+              <td class="num">0.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>18</td>
+              <td>white</td>
+              <td><span class="sw" style="background:rgb(211,212,212)" title="sRGB 211,212,212"></span></td>
+              <td><span class="sw" style="background:rgb(245,245,245)" title="sRGB 245,245,245"></span></td>
+              <td class="num">0.827, 0.831, 0.831</td>
+              <td class="num">96.5, -0.4, 1.2</td>
+              <td class="num">1.28</td>
+              <td class="num">1.40</td>
+              <td class="num">-0.0009, +0.0061, +0.0050</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>19</td>
+              <td>neutral_9</td>
+              <td><span class="sw" style="background:rgb(173,174,174)" title="sRGB 173,174,174"></span></td>
+              <td><span class="sw" style="background:rgb(200,202,202)" title="sRGB 200,202,202"></span></td>
+              <td class="num">0.678, 0.682, 0.682</td>
+              <td class="num">81.3, -0.6, -0.3</td>
+              <td class="num">0.35</td>
+              <td class="num">0.90</td>
+              <td class="num">+0.0042, -0.0001, -0.0004</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>20</td>
+              <td>neutral_7_5</td>
+              <td><span class="sw" style="background:rgb(138,140,140)" title="sRGB 138,140,140"></span></td>
+              <td><span class="sw" style="background:rgb(161,163,163)" title="sRGB 161,163,163"></span></td>
+              <td class="num">0.541, 0.549, 0.549</td>
+              <td class="num">66.8, -0.7, -0.5</td>
+              <td class="num">0.84</td>
+              <td class="num">0.85</td>
+              <td class="num">-0.0008, +0.0018, +0.0013</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>21</td>
+              <td>neutral_6_5</td>
+              <td><span class="sw" style="background:rgb(103,103,103)" title="sRGB 103,103,103"></span></td>
+              <td><span class="sw" style="background:rgb(121,121,121)" title="sRGB 121,121,121"></span></td>
+              <td class="num">0.404, 0.404, 0.404</td>
+              <td class="num">50.9, -0.1, -0.3</td>
+              <td class="num">0.78</td>
+              <td class="num">1.38</td>
+              <td class="num">-0.0003, -0.0024, -0.0022</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>22</td>
+              <td>neutral_5</td>
+              <td><span class="sw" style="background:rgb(70,71,71)" title="sRGB 70,71,71"></span></td>
+              <td><span class="sw" style="background:rgb(83,84,84)" title="sRGB 83,84,84"></span></td>
+              <td class="num">0.275, 0.278, 0.278</td>
+              <td class="num">35.7, -0.4, -1.2</td>
+              <td class="num">0.48</td>
+              <td class="num">0.99</td>
+              <td class="num">-0.0000, -0.0008, -0.0007</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr><tr class="role-train">
+              <td>23</td>
+              <td>black</td>
+              <td><span class="sw" style="background:rgb(40,41,41)" title="sRGB 40,41,41"></span></td>
+              <td><span class="sw" style="background:rgb(49,49,49)" title="sRGB 49,49,49"></span></td>
+              <td class="num">0.157, 0.161, 0.161</td>
+              <td class="num">20.5, -0.1, -1.0</td>
+              <td class="num">0.50</td>
+              <td class="num">0.58</td>
+              <td class="num">-0.0009, -0.0001, -0.0000</td>
+              <td class="num">1.00</td>
+              <td><span class="badge ok">clean</span></td>
+              <td><span class="role role-train">train+cv</span></td>
+            </tr></tbody></table>
+
+<h2>Raw mapping JSON</h2>
+<pre style="max-height:300px;overflow:auto;background:#f7f7f7;padding:10px;font-size:11px;">
+{
+  &quot;model&quot;: &quot;matrix3&quot;,
+  &quot;white_gains&quot;: [
+    1.397046,
+    1.39883,
+    1.400755
+  ],
+  &quot;coefficients&quot;: [
+    [
+      1.13887979,
+      -0.0762941,
+      -0.05978166
+    ],
+    [
+      -0.00434944,
+      1.19605389,
+      -0.09595054
+    ],
+    [
+      -0.13194492,
+      -0.12083884,
+      1.15393994
+    ]
+  ],
+  &quot;feature_names&quot;: [
+    &quot;R&quot;,
+    &quot;G&quot;,
+    &quot;B&quot;
+  ],
+  &quot;fit_meta&quot;: {
+    &quot;condition_number&quot;: 79.20748034536481,
+    &quot;dof&quot;: 63,
+    &quot;irls_weights&quot;: [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      0.716943863360765,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      0.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    &quot;perceptual_row_weights&quot;: [
+      1.3651,
+      0.3983,
+      0.8987,
+      1.1231,
+      0.6907,
+      0.3879,
+      0.407,
+      1.6554,
+      0.6436,
+      2.3592,
+      0.3293,
+      0.3049,
+      3.0114,
+      1.249,
+      0.9876,
+      0.2294,
+      0.6631,
+      0.9466,
+      0.1647,
+      0.256,
+      0.4157,
+      0.7869,
+      1.715,
+      3.0114
+    ],
+    &quot;n_samples&quot;: 24,
+    &quot;n_parameters&quot;: 9,
+    &quot;input_range_min&quot;: [
+      0.029644,
+      0.029682,
+      0.022407
+    ],
+    &quot;input_range_max&quot;: [
+      0.910044,
+      0.920954,
+      0.922222
+    ]
+  },
+  &quot;reference_space&quot;: {
+    &quot;type&quot;: &quot;lab&quot;,
+    &quot;illuminant&quot;: &quot;D50&quot;,
+    &quot;source&quot;: &quot;X-Rite 2014&quot;
+  }
+}
+</pre>
+</body></html>
