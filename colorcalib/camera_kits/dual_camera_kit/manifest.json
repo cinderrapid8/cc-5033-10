@@ -1,0 +1,810 @@
+{
+  "schema": "colorcalib.camera_kit_manifest/v1",
+  "kit_name": "dual_camera_kit",
+  "kit_class": "synthetic",
+  "simulation_note": "Every image in this kit is a SIMULATED response, not a photograph. The manifest marks each file's role; see 'simulation_models' in this file for the exact effects applied.",
+  "provenance": {
+    "params_file": "kit_params.json",
+    "params_sha256": "b5ec8caa143bdc9dbb16a19b115402359e948ab5bbe5d673fa9ead4a39bedab5",
+    "builder": "scripts/build_camera_kit.py",
+    "version": "1"
+  },
+  "chart": {
+    "reference": "builtin",
+    "name": "xrite-colorchecker-classic-24",
+    "rows": 4,
+    "cols": 6,
+    "holdout_indices": [
+      2,
+      11,
+      17,
+      20
+    ],
+    "holdout_patch_names": [
+      "blue_sky",
+      "orange_yellow",
+      "cyan",
+      "neutral_7_5"
+    ],
+    "neutral_indices": [
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+    ]
+  },
+  "camera_profiles": {
+    "cam_a": {
+      "label": "Camera A (coarse colour filter, mild cross-talk)",
+      "matrix": [
+        [
+          0.92,
+          0.05,
+          0.03
+        ],
+        [
+          0.04,
+          0.9,
+          0.06
+        ],
+        [
+          0.07,
+          0.06,
+          0.87
+        ]
+      ],
+      "noise_sigma": 0.0015,
+      "black_level": 0.0
+    },
+    "cam_b": {
+      "label": "Camera B (stronger cross-talk, wider primaries)",
+      "matrix": [
+        [
+          0.8,
+          0.12,
+          0.08
+        ],
+        [
+          0.15,
+          0.78,
+          0.07
+        ],
+        [
+          0.04,
+          0.1,
+          0.86
+        ]
+      ],
+      "noise_sigma": 0.0015,
+      "black_level": 0.0
+    },
+    "foreign_cam": {
+      "label": "Foreign camera (deliberately far from A and B; negative control)",
+      "matrix": [
+        [
+          0.7,
+          0.2,
+          0.1
+        ],
+        [
+          0.05,
+          0.7,
+          0.25
+        ],
+        [
+          0.1,
+          0.1,
+          0.8
+        ]
+      ],
+      "noise_sigma": 0.0015,
+      "black_level": 0.0
+    }
+  },
+  "illuminations": {
+    "neutral": {
+      "label": "D65-like neutral studio light",
+      "gains": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "exposure": 1.0
+    },
+    "warm": {
+      "label": "Warm tungsten-like light",
+      "gains": [
+        1.18,
+        1.0,
+        0.82
+      ],
+      "exposure": 1.03
+    },
+    "cool": {
+      "label": "Cool daylight-shade-like light",
+      "gains": [
+        0.86,
+        1.0,
+        1.2
+      ],
+      "exposure": 1.0
+    },
+    "dim": {
+      "label": "Underexposed capture of the same neutral light",
+      "gains": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "exposure": 0.68
+    }
+  },
+  "imaged_illuminations": [
+    "neutral",
+    "warm",
+    "cool",
+    "dim"
+  ],
+  "holdout_validation_illumination": "warm",
+  "acceptance": {
+    "description": "A cross-camera rebuild must satisfy all checks; the verifier exits non-zero otherwise.",
+    "max_train_deltaE_mean": 4.0,
+    "max_holdout_deltaE_mean": 6.0,
+    "max_absolute_holdout_deltaE": 12.0,
+    "matrix_recovery_rel_tol": 0.25,
+    "min_usable_patches": 20,
+    "require_source_reproducible": true
+  },
+  "files": [
+    {
+      "file": "charts/chart_cam_a_neutral.png",
+      "role": "chart_observation",
+      "camera": "cam_a",
+      "illumination": "neutral",
+      "simulated_response": true,
+      "sha256": "80215bfa3cea00e4e9b65d05ee0b8bcd5123734d8aff96b219a20d68cb650e4e",
+      "chart_corners_xy": [
+        [
+          14,
+          14
+        ],
+        [
+          804,
+          14
+        ],
+        [
+          804,
+          536
+        ],
+        [
+          14,
+          536
+        ]
+      ]
+    },
+    {
+      "file": "scenes/scene_cam_a_neutral.png",
+      "role": "scene_observation",
+      "camera": "cam_a",
+      "illumination": "neutral",
+      "simulated_response": true,
+      "sha256": "93f8c3cdd0783b90453f51f1c42bca5ff33da0ac5abf76b68289e4a4c3e10f65",
+      "blocks": [
+        {
+          "name": "scene_red",
+          "reference_srgb": [
+            0.85,
+            0.2,
+            0.15
+          ],
+          "y0": 0,
+          "y1": 64,
+          "x0": 0,
+          "x1": 320
+        },
+        {
+          "name": "scene_blue",
+          "reference_srgb": [
+            0.2,
+            0.55,
+            0.8
+          ],
+          "y0": 64,
+          "y1": 128,
+          "x0": 0,
+          "x1": 320
+        },
+        {
+          "name": "scene_yellow",
+          "reference_srgb": [
+            0.9,
+            0.85,
+            0.4
+          ],
+          "y0": 128,
+          "y1": 192,
+          "x0": 0,
+          "x1": 320
+        }
+      ]
+    },
+    {
+      "file": "charts/chart_cam_a_warm.png",
+      "role": "chart_observation",
+      "camera": "cam_a",
+      "illumination": "warm",
+      "simulated_response": true,
+      "sha256": "15c60f9b4bb6a77d0876450581e05730bf3b452f60c28eead64828dc5d581745",
+      "chart_corners_xy": [
+        [
+          14,
+          14
+        ],
+        [
+          804,
+          14
+        ],
+        [
+          804,
+          536
+        ],
+        [
+          14,
+          536
+        ]
+      ]
+    },
+    {
+      "file": "scenes/scene_cam_a_warm.png",
+      "role": "scene_observation",
+      "camera": "cam_a",
+      "illumination": "warm",
+      "simulated_response": true,
+      "sha256": "58fcb66f274fb929494bc088cdcfdc407a470749bd8f53a2575f6d3517b4a5db",
+      "blocks": [
+        {
+          "name": "scene_red",
+          "reference_srgb": [
+            0.85,
+            0.2,
+            0.15
+          ],
+          "y0": 0,
+          "y1": 64,
+          "x0": 0,
+          "x1": 320
+        },
+        {
+          "name": "scene_blue",
+          "reference_srgb": [
+            0.2,
+            0.55,
+            0.8
+          ],
+          "y0": 64,
+          "y1": 128,
+          "x0": 0,
+          "x1": 320
+        },
+        {
+          "name": "scene_yellow",
+          "reference_srgb": [
+            0.9,
+            0.85,
+            0.4
+          ],
+          "y0": 128,
+          "y1": 192,
+          "x0": 0,
+          "x1": 320
+        }
+      ]
+    },
+    {
+      "file": "charts/chart_cam_a_cool.png",
+      "role": "chart_observation",
+      "camera": "cam_a",
+      "illumination": "cool",
+      "simulated_response": true,
+      "sha256": "c1e7258bac6b53bbfe8920876e96787116eef2c92778b6494a59e583b3354831",
+      "chart_corners_xy": [
+        [
+          14,
+          14
+        ],
+        [
+          804,
+          14
+        ],
+        [
+          804,
+          536
+        ],
+        [
+          14,
+          536
+        ]
+      ]
+    },
+    {
+      "file": "scenes/scene_cam_a_cool.png",
+      "role": "scene_observation",
+      "camera": "cam_a",
+      "illumination": "cool",
+      "simulated_response": true,
+      "sha256": "423202f83d40a08641ac7849955fc2caefc1572719daba8aa7e2f029b5080fd2",
+      "blocks": [
+        {
+          "name": "scene_red",
+          "reference_srgb": [
+            0.85,
+            0.2,
+            0.15
+          ],
+          "y0": 0,
+          "y1": 64,
+          "x0": 0,
+          "x1": 320
+        },
+        {
+          "name": "scene_blue",
+          "reference_srgb": [
+            0.2,
+            0.55,
+            0.8
+          ],
+          "y0": 64,
+          "y1": 128,
+          "x0": 0,
+          "x1": 320
+        },
+        {
+          "name": "scene_yellow",
+          "reference_srgb": [
+            0.9,
+            0.85,
+            0.4
+          ],
+          "y0": 128,
+          "y1": 192,
+          "x0": 0,
+          "x1": 320
+        }
+      ]
+    },
+    {
+      "file": "charts/chart_cam_a_dim.png",
+      "role": "chart_observation",
+      "camera": "cam_a",
+      "illumination": "dim",
+      "simulated_response": true,
+      "sha256": "17442d81d970f96a6bf43452d4148d75a28a8946480b1e2cd88ae942c6b7ee51",
+      "chart_corners_xy": [
+        [
+          14,
+          14
+        ],
+        [
+          804,
+          14
+        ],
+        [
+          804,
+          536
+        ],
+        [
+          14,
+          536
+        ]
+      ]
+    },
+    {
+      "file": "scenes/scene_cam_a_dim.png",
+      "role": "scene_observation",
+      "camera": "cam_a",
+      "illumination": "dim",
+      "simulated_response": true,
+      "sha256": "40310e4238b082f969565e3f88683fa59acbb6538c17cd1db1e3ffdf2f8ef068",
+      "blocks": [
+        {
+          "name": "scene_red",
+          "reference_srgb": [
+            0.85,
+            0.2,
+            0.15
+          ],
+          "y0": 0,
+          "y1": 64,
+          "x0": 0,
+          "x1": 320
+        },
+        {
+          "name": "scene_blue",
+          "reference_srgb": [
+            0.2,
+            0.55,
+            0.8
+          ],
+          "y0": 64,
+          "y1": 128,
+          "x0": 0,
+          "x1": 320
+        },
+        {
+          "name": "scene_yellow",
+          "reference_srgb": [
+            0.9,
+            0.85,
+            0.4
+          ],
+          "y0": 128,
+          "y1": 192,
+          "x0": 0,
+          "x1": 320
+        }
+      ]
+    },
+    {
+      "file": "charts/chart_cam_b_neutral.png",
+      "role": "chart_observation",
+      "camera": "cam_b",
+      "illumination": "neutral",
+      "simulated_response": true,
+      "sha256": "99f0b470b37c6e36a62691ac6d6a76d9dc138d871c0e48e836f111a897a4bfed",
+      "chart_corners_xy": [
+        [
+          14,
+          14
+        ],
+        [
+          804,
+          14
+        ],
+        [
+          804,
+          536
+        ],
+        [
+          14,
+          536
+        ]
+      ]
+    },
+    {
+      "file": "scenes/scene_cam_b_neutral.png",
+      "role": "scene_observation",
+      "camera": "cam_b",
+      "illumination": "neutral",
+      "simulated_response": true,
+      "sha256": "f558bc52a066bf6c1e3eeaf3ef6dd867da9c310f4c4a1d1708338c53097d0365",
+      "blocks": [
+        {
+          "name": "scene_red",
+          "reference_srgb": [
+            0.85,
+            0.2,
+            0.15
+          ],
+          "y0": 0,
+          "y1": 64,
+          "x0": 0,
+          "x1": 320
+        },
+        {
+          "name": "scene_blue",
+          "reference_srgb": [
+            0.2,
+            0.55,
+            0.8
+          ],
+          "y0": 64,
+          "y1": 128,
+          "x0": 0,
+          "x1": 320
+        },
+        {
+          "name": "scene_yellow",
+          "reference_srgb": [
+            0.9,
+            0.85,
+            0.4
+          ],
+          "y0": 128,
+          "y1": 192,
+          "x0": 0,
+          "x1": 320
+        }
+      ]
+    },
+    {
+      "file": "charts/chart_cam_b_warm.png",
+      "role": "chart_observation",
+      "camera": "cam_b",
+      "illumination": "warm",
+      "simulated_response": true,
+      "sha256": "b46eaf3c7510ccdf1fe731de7ce90c8346a32f9c55194b81d9f62eecc9a756fe",
+      "chart_corners_xy": [
+        [
+          14,
+          14
+        ],
+        [
+          804,
+          14
+        ],
+        [
+          804,
+          536
+        ],
+        [
+          14,
+          536
+        ]
+      ]
+    },
+    {
+      "file": "scenes/scene_cam_b_warm.png",
+      "role": "scene_observation",
+      "camera": "cam_b",
+      "illumination": "warm",
+      "simulated_response": true,
+      "sha256": "e5725ee9a7d11a848ed0a48a60fa295ceaa9b645bf0feb711f97034bcaa54477",
+      "blocks": [
+        {
+          "name": "scene_red",
+          "reference_srgb": [
+            0.85,
+            0.2,
+            0.15
+          ],
+          "y0": 0,
+          "y1": 64,
+          "x0": 0,
+          "x1": 320
+        },
+        {
+          "name": "scene_blue",
+          "reference_srgb": [
+            0.2,
+            0.55,
+            0.8
+          ],
+          "y0": 64,
+          "y1": 128,
+          "x0": 0,
+          "x1": 320
+        },
+        {
+          "name": "scene_yellow",
+          "reference_srgb": [
+            0.9,
+            0.85,
+            0.4
+          ],
+          "y0": 128,
+          "y1": 192,
+          "x0": 0,
+          "x1": 320
+        }
+      ]
+    },
+    {
+      "file": "charts/chart_cam_b_cool.png",
+      "role": "chart_observation",
+      "camera": "cam_b",
+      "illumination": "cool",
+      "simulated_response": true,
+      "sha256": "fde8e85e9df606d607a04f83ecdbfdd8a9c06a4e1d7dd3c344b0b8e19814817f",
+      "chart_corners_xy": [
+        [
+          14,
+          14
+        ],
+        [
+          804,
+          14
+        ],
+        [
+          804,
+          536
+        ],
+        [
+          14,
+          536
+        ]
+      ]
+    },
+    {
+      "file": "scenes/scene_cam_b_cool.png",
+      "role": "scene_observation",
+      "camera": "cam_b",
+      "illumination": "cool",
+      "simulated_response": true,
+      "sha256": "429ffa49bea13af09613239834f6bcf80fcaf1636bca467a1436e2e374d028b9",
+      "blocks": [
+        {
+          "name": "scene_red",
+          "reference_srgb": [
+            0.85,
+            0.2,
+            0.15
+          ],
+          "y0": 0,
+          "y1": 64,
+          "x0": 0,
+          "x1": 320
+        },
+        {
+          "name": "scene_blue",
+          "reference_srgb": [
+            0.2,
+            0.55,
+            0.8
+          ],
+          "y0": 64,
+          "y1": 128,
+          "x0": 0,
+          "x1": 320
+        },
+        {
+          "name": "scene_yellow",
+          "reference_srgb": [
+            0.9,
+            0.85,
+            0.4
+          ],
+          "y0": 128,
+          "y1": 192,
+          "x0": 0,
+          "x1": 320
+        }
+      ]
+    },
+    {
+      "file": "charts/chart_cam_b_dim.png",
+      "role": "chart_observation",
+      "camera": "cam_b",
+      "illumination": "dim",
+      "simulated_response": true,
+      "sha256": "3f17bc63a8083230ff1896a4015fc43f5247947e680e09349bc0f266ca349eba",
+      "chart_corners_xy": [
+        [
+          14,
+          14
+        ],
+        [
+          804,
+          14
+        ],
+        [
+          804,
+          536
+        ],
+        [
+          14,
+          536
+        ]
+      ]
+    },
+    {
+      "file": "scenes/scene_cam_b_dim.png",
+      "role": "scene_observation",
+      "camera": "cam_b",
+      "illumination": "dim",
+      "simulated_response": true,
+      "sha256": "975595250f27fed57c66c1744f9f03a5ef0959b8340dcd47c4a830fcc1dbf998",
+      "blocks": [
+        {
+          "name": "scene_red",
+          "reference_srgb": [
+            0.85,
+            0.2,
+            0.15
+          ],
+          "y0": 0,
+          "y1": 64,
+          "x0": 0,
+          "x1": 320
+        },
+        {
+          "name": "scene_blue",
+          "reference_srgb": [
+            0.2,
+            0.55,
+            0.8
+          ],
+          "y0": 64,
+          "y1": 128,
+          "x0": 0,
+          "x1": 320
+        },
+        {
+          "name": "scene_yellow",
+          "reference_srgb": [
+            0.9,
+            0.85,
+            0.4
+          ],
+          "y0": 128,
+          "y1": 192,
+          "x0": 0,
+          "x1": 320
+        }
+      ]
+    },
+    {
+      "file": "control/chart_foreign_cam_neutral.png",
+      "role": "negative_control_chart",
+      "camera": "foreign_cam",
+      "illumination": "neutral",
+      "simulated_response": true,
+      "sha256": "af4ae20f2af44fb79795c02038aa9252c1b5322277d7ec4fbe099e457053f8dd",
+      "chart_corners_xy": [
+        [
+          14,
+          14
+        ],
+        [
+          804,
+          14
+        ],
+        [
+          804,
+          536
+        ],
+        [
+          14,
+          536
+        ]
+      ]
+    },
+    {
+      "file": "control/scene_foreign_cam_neutral.png",
+      "role": "negative_control_scene",
+      "camera": "foreign_cam",
+      "illumination": "neutral",
+      "simulated_response": true,
+      "sha256": "0625eed6e8bdc969ccbaa02030c1be4dfd2b17f7226865b071cbea7b2cbd169d",
+      "blocks": [
+        {
+          "name": "scene_red",
+          "reference_srgb": [
+            0.85,
+            0.2,
+            0.15
+          ],
+          "y0": 0,
+          "y1": 64,
+          "x0": 0,
+          "x1": 320
+        },
+        {
+          "name": "scene_blue",
+          "reference_srgb": [
+            0.2,
+            0.55,
+            0.8
+          ],
+          "y0": 64,
+          "y1": 128,
+          "x0": 0,
+          "x1": 320
+        },
+        {
+          "name": "scene_yellow",
+          "reference_srgb": [
+            0.9,
+            0.85,
+            0.4
+          ],
+          "y0": 128,
+          "y1": 192,
+          "x0": 0,
+          "x1": 320
+        }
+      ]
+    }
+  ]
+}

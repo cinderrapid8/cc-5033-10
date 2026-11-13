@@ -60,6 +60,9 @@ def cmd_calibrate(args) -> int:
     val_idx = None
     if args.validation_indices:
         val_idx = [int(x) for x in args.validation_indices.split(",")]
+    hold_idx = None
+    if args.holdout_indices:
+        hold_idx = [int(x) for x in args.holdout_indices.split(",")]
 
     try:
         result = calibrate(
@@ -68,6 +71,7 @@ def cmd_calibrate(args) -> int:
             chart.reference_space,
             model=args.model,
             validation_indices=val_idx,
+            holdout_indices=hold_idx,
             robust=not args.no_robust,
         )
     except (InsufficientSamplesError, IllConditionedError) as exc:
@@ -81,6 +85,9 @@ def cmd_calibrate(args) -> int:
     if result.validation_summary:
         print("validation (held-out patches):")
         print(json.dumps(result.validation_summary, indent=2))
+    if result.holdout_summary:
+        print("independent holdout (never used by gains, folds, or the fit):")
+        print(json.dumps(result.holdout_summary, indent=2))
     for w in result.warnings:
         print(f"[warning] {w}")
 
@@ -130,6 +137,11 @@ def build_parser() -> argparse.ArgumentParser:
     c.add_argument(
         "--validation-indices",
         help="comma-separated patch indices to force into the holdout set",
+    )
+    c.add_argument(
+        "--holdout-indices",
+        help="comma-separated patch indices to EXCLUDE from the fit entirely "
+             "(independent generalization check, e.g. a separate chart image)",
     )
     c.add_argument("--no-robust", action="store_true", help="disable IRLS fitting")
     c.set_defaults(func=cmd_calibrate)

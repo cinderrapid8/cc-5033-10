@@ -1,0 +1,73 @@
+{
+  "schema": "colorcalib.camera_kit/v1",
+  "kit_name": "dual_camera_kit",
+  "description": "Fictional dual-camera reference kit. Two simulated camera sensors observe one reference chart under several illuminations; a deliberately wrong 'foreign' camera is included as a negative control for cross-camera transfer.",
+  "kit_class": "synthetic",
+  "simulation_note": "Every image in this kit is a SIMULATED response, not a photograph. The manifest marks each file's role; see 'simulation_models' in this file for the exact effects applied.",
+  "simulation_models": [
+    "camera colour mixing: fixed 3x3 matrix in linear light (camera_profiles[*].matrix)",
+    "illumination + white balance: per-channel diagonal gain (illuminations[*].gains)",
+    "exposure: scalar multiplier (illuminations[*].exposure)",
+    "sensor noise: seeded Gaussian, sigma per camera",
+    "black level: linear offset added before clipping",
+    "patches: matte, no texture; chart border and background are synthetic"
+  ],
+  "chart": {
+    "reference": "builtin",
+    "name": "xrite-colorchecker-classic-24",
+    "rows": 4,
+    "cols": 6,
+    "holdout_indices": [2, 11, 17, 20],
+    "holdout_patch_names": ["blue_sky", "orange_yellow", "cyan", "neutral_7_5"],
+    "neutral_indices": [18, 19, 20, 21, 22, 23]
+  },
+  "render_geometry": {
+    "cell_px": 120,
+    "gap_px": 14,
+    "chart_corners_xy": [[14, 14], [806, 14], [806, 534], [14, 534]],
+    "scene_width_px": 320,
+    "scene_block_height_px": 64
+  },
+  "camera_profiles": {
+    "cam_a": {
+      "label": "Camera A (coarse colour filter, mild cross-talk)",
+      "matrix": [[0.92, 0.05, 0.03], [0.04, 0.90, 0.06], [0.07, 0.06, 0.87]],
+      "noise_sigma": 0.0015,
+      "black_level": 0.0
+    },
+    "cam_b": {
+      "label": "Camera B (stronger cross-talk, wider primaries)",
+      "matrix": [[0.80, 0.12, 0.08], [0.15, 0.78, 0.07], [0.04, 0.10, 0.86]],
+      "noise_sigma": 0.0015,
+      "black_level": 0.0
+    },
+    "foreign_cam": {
+      "label": "Foreign camera (deliberately far from A and B; negative control)",
+      "matrix": [[0.70, 0.20, 0.10], [0.05, 0.70, 0.25], [0.10, 0.10, 0.80]],
+      "noise_sigma": 0.0015,
+      "black_level": 0.0
+    }
+  },
+  "illuminations": {
+    "neutral": {"label": "D65-like neutral studio light", "gains": [1.0, 1.0, 1.0], "exposure": 1.0},
+    "warm": {"label": "Warm tungsten-like light", "gains": [1.18, 1.0, 0.82], "exposure": 1.03},
+    "cool": {"label": "Cool daylight-shade-like light", "gains": [0.86, 1.0, 1.2], "exposure": 1.0},
+    "dim": {"label": "Underexposed capture of the same neutral light", "gains": [1.0, 1.0, 1.0], "exposure": 0.68}
+  },
+  "imaged_illuminations": ["neutral", "warm", "cool", "dim"],
+  "holdout_validation_illumination": "warm",
+  "scene_blocks": [
+    {"name": "scene_red", "rgb": [0.85, 0.2, 0.15]},
+    {"name": "scene_blue", "rgb": [0.2, 0.55, 0.8]},
+    {"name": "scene_yellow", "rgb": [0.9, 0.85, 0.4]}
+  ],
+  "acceptance": {
+    "description": "A cross-camera rebuild must satisfy all checks; the verifier exits non-zero otherwise.",
+    "max_train_deltaE_mean": 4.0,
+    "max_holdout_deltaE_mean": 6.0,
+    "max_absolute_holdout_deltaE": 12.0,
+    "matrix_recovery_rel_tol": 0.25,
+    "min_usable_patches": 20,
+    "require_source_reproducible": true
+  }
+}

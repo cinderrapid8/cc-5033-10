@@ -43,6 +43,17 @@
   .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
   @media (max-width:860px){ .grid2 { grid-template-columns:1fr; } }
   img.preview { max-width:100%; border:1px solid var(--line); border-radius:6px; }
+  .holdout.strip { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .holdout .chip { display:flex; flex-direction:column; align-items:center; gap:3px;
+    border:1px solid var(--line); border-radius:6px; padding:5px 6px; cursor:pointer;
+    background:#fafbfc; font-size:10px; min-width:52px; user-select:none; }
+  .holdout .chip.on { border-color:var(--bad); box-shadow:0 0 0 2px #f8d7da inset; background:#fff5f6; }
+  .holdout .chip .sq { width:26px; height:26px; border:1px solid #888; border-radius:3px; }
+  .tag { display:inline-block; padding:1px 8px; border-radius:9px; font-size:11px; font-weight:600; }
+  .tag.consistent { background:#d4edda; color:var(--ok); }
+  .tag.weak { background:#fff3cd; color:var(--warn); }
+  .tag.mismatch { background:#f8d7da; color:var(--bad); }
+  .role-holdout { background:#fff3cd; font-weight:600; }
 </style>
 </head>
 <body>
@@ -74,6 +85,84 @@
       <button type="submit" id="calBtn">Fit mapping</button>
     </form>
     <div id="calError" class="err" style="display:none;margin-top:14px"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Cross-camera kit · load a reference kit and calibrate camera-to-camera</h2>
+    <p class="hint">Every image in a kit is a <b>simulated response</b>, generated from saved parameters
+      (<code>kit_params.json</code>). Pick a source chart and a target chart; the mapping is fitted
+      on the source, then applied to the target under the target's own white balance. Patches you
+      mark as <em>holdout</em> are excluded from the fit and reported as an independent check.
+      Each row below is tied to the exact chart/scene file it came from.</p>
+    <div class="grid2">
+      <div>
+        <label>Camera kit</label>
+        <select id="kitSelect"><option value="">— select a kit —</option></select>
+        <div class="hint" id="kitNote"></div>
+      </div>
+      <div>
+        <label>Mapping model</label>
+        <select id="kitModel">
+          {% for m in models %}<option value="{{ m }}">{{ m }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="grid2" style="margin-top:12px">
+      <div>
+        <label>Source chart (fit on this)</label>
+        <select id="kitSource"></select>
+      </div>
+      <div>
+        <label>Target chart (apply to this)</label>
+        <select id="kitTarget"></select>
+      </div>
+    </div>
+    <label>Holdout patches — click swatches to exclude them from the fit</label>
+    <div id="holdoutStrip" class="holdout strip"></div>
+    <div class="hint">Selected patches are removed from white balance, cross-validation folds, and the fit.
+      Their residual is the independent generalization check.</div>
+    <details style="margin-top:10px">
+      <summary>Manual chart corners (fallback when auto geometry is wrong)</summary>
+      <div class="hint">Four [x, y] pairs in source-image pixels, e.g. <code>[[14,14],[806,14],[806,534],[14,534]]</code>.</div>
+      <textarea id="kitCorners" rows="2" style="width:100%;margin-top:6px;font-family:ui-monospace"
+        placeholder='[[14,14],[806,14],[806,534],[14,534]]'></textarea>
+    </details>
+    <button type="button" id="kitCalBtn" disabled>Calibrate across cameras</button>
+    <div id="kitError" class="err" style="display:none;margin-top:14px"></div>
+
+    <div id="kitResults" style="display:none;margin-top:18px">
+      <div class="grid2">
+        <div>
+          <h3 style="font-size:14px">Source chart (fitted)</h3>
+          <img id="kitSrcPreview" class="preview" alt="source chart">
+        </div>
+        <div>
+          <h3 style="font-size:14px">Target chart (mapped)</h3>
+          <img id="kitTgtPreview" class="preview" alt="target chart">
+        </div>
+      </div>
+      <h3 style="font-size:14px;margin-top:16px">Cross-camera transfer assessment</h3>
+      <div id="kitCards" class="cards"></div>
+      <div id="kitWarn" class="warn" style="margin-top:10px"></div>
+
+      <h3 style="font-size:14px;margin-top:18px">Target colour residuals (independent holdout highlighted)</h3>
+      <table>
+        <thead><tr>
+          <th>#</th><th>patch</th><th>target observed</th><th>reference</th>
+          <th>predicted Lab</th><th>ΔE2000</th><th>linear RGB residual</th><th>role</th>
+        </tr></thead>
+        <tbody id="kitPatchRows"></tbody>
+      </table>
+
+      <h3 style="font-size:14px;margin-top:18px">Cross-camera sample (target scene, mapped)</h3>
+      <div class="grid2">
+        <div><img id="kitScenePreview" class="preview" alt="mapped target scene"></div>
+        <div><table><thead><tr>
+          <th>block</th><th>reference</th><th>ΔE2000 mean</th><th>ΔE p95</th><th>pixel rect (y0,y1,x0,x1)</th>
+          </tr></thead><tbody id="kitSceneRows"></tbody></table></div>
+      </div>
+      <p style="margin-top:12px"><a id="kitDlMapping"><button type="button">Download fitted mapping JSON</button></a></p>
+    </div>
   </section>
 
   <section id="results" style="display:none">
@@ -213,6 +302,201 @@ $("#applyBtn").addEventListener("click", async () => {
       <td class="num">${(100 * (im.fraction_output_above_1_clipped ?? 0)).toFixed(2)}%</td>
     </tr>`).join("") + "</tbody></table>";
 });
+
+// ---------------------------------------------------------------------------
+// Cross-camera kit panel
+// ---------------------------------------------------------------------------
+let kitState = { name: null, detail: null, holdout: [], referenceSrgb: null };
+
+function kitErr(msg) {
+  const el = $("#kitError");
+  el.textContent = msg; el.style.display = "block";
+}
+function kitClearErr() { $("#kitError").style.display = "none"; }
+
+async function loadKitList() {
+  const r = await fetch("/kits");
+  const data = await r.json();
+  const sel = $("#kitSelect");
+  sel.innerHTML = '<option value="">— select a kit —</option>' +
+    data.kits.map(k => `<option value="${k.name}">${k.kit_name} (${k.kit_class})</option>`).join("");
+  if (!data.kits.length) {
+    kitErr("no camera kits found under " + data.kit_root +
+           " — build one with scripts/build_camera_kit.py");
+  }
+}
+
+async function loadKitDetail(name) {
+  kitState.name = name;
+  kitState.holdout = [];
+  const r = await fetch(`/kits/${encodeURIComponent(name)}`);
+  const data = await r.json();
+  if (!r.ok) { kitErr(data.error || "failed to load kit"); return; }
+  kitState.detail = data;
+  $("#kitNote").textContent = (data.manifest.simulation_note || "") +
+    "  Holdout colours from the kit: " +
+    (data.manifest.chart?.holdout_patch_names || []).join(", ");
+  const chartOpts = data.charts.map(c =>
+    `<option value="${c.file}">${c.camera} / ${c.illumination}</option>`).join("");
+  $("#kitSource").innerHTML = chartOpts;
+  $("#kitTarget").innerHTML = chartOpts;
+  // Default target = a *different* camera, so the first run is a true
+  // cross-camera transfer rather than a trivially-consistent copy.
+  const sameCam = data.charts.filter(c => c.camera !== data.charts[0]?.camera);
+  if (sameCam.length) $("#kitTarget").value = sameCam[0].file;
+  $("#kitCalBtn").disabled = false;
+  renderHoldoutStrip();
+  $("#kitResults").style.display = "none";
+}
+
+function renderHoldoutStrip() {
+  const def = kitState.detail?.manifest?.chart?.holdout_patch_names || [];
+  const ref = kitState.referenceSrgb;
+  const strip = $("#holdoutStrip");
+  if (!ref) {
+    // fetch reference swatches from an initial calibration-free source call:
+    // derive from the built-in chart rendered by the server on demand.
+    strip.innerHTML = '<span class="muted">load a kit to choose patches</span>';
+    return;
+  }
+  const names = kitState.detail?.manifest?.chart?.holdout_patch_names || [];
+  // The strip shows ALL 24 patches; the kit's declared holdout set is pre-selected.
+  strip.innerHTML = ref.map((rgb, i) => {
+    const on = kitState.holdout.includes(i) ? " on" : "";
+    const c = rgb.map(v => Math.round(Math.max(0, Math.min(1, v)) * 255));
+    return `<div class="chip${on}" data-idx="${i}" title="patch #${i}">
+      <span class="sq" style="background:rgb(${c.join(",")})"></span>
+      <span>#${i}</span></div>`;
+  }).join("");
+  strip.querySelectorAll(".chip").forEach(ch => {
+    ch.addEventListener("click", () => {
+      const i = parseInt(ch.dataset.idx, 10);
+      if (kitState.holdout.includes(i)) kitState.holdout = kitState.holdout.filter(x => x !== i);
+      else kitState.holdout.push(i);
+      renderHoldoutStrip();
+    });
+  });
+}
+
+// Reference swatches come from the existing calibrate payload's reference_srgb;
+// if the user has never calibrated, fetch a tiny server-side reference list.
+async function ensureReferenceSrgb() {
+  if (kitState.referenceSrgb) return kitState.referenceSrgb;
+  try {
+    const r = await fetch("/kits/reference_swatches");
+    if (r.ok) {
+      const d = await r.json();
+      kitState.referenceSrgb = d.srgb;
+      kitState.referenceNames = d.names;
+    }
+  } catch (e) { /* leave null */ }
+  return kitState.referenceSrgb;
+}
+
+$("#kitSelect").addEventListener("change", async (e) => {
+  const name = e.target.value;
+  if (!name) { $("#kitCalBtn").disabled = true; return; }
+  await ensureReferenceSrgb();
+  await loadKitDetail(name);
+  // pre-select the kit's declared holdout patches, mapped by name to indices
+  const declaredNames = kitState.detail?.manifest?.chart?.holdout_patch_names || [];
+  const refNames = kitState.referenceNames || [];
+  kitState.holdout = declaredNames
+    .map(n => refNames.indexOf(n))
+    .filter(i => i >= 0);
+  renderHoldoutStrip();
+});
+
+$("#kitCalBtn").addEventListener("click", async () => {
+  if (!kitState.name) return;
+  kitClearErr();
+  $("#kitCalBtn").disabled = true;
+  const fd = new FormData();
+  fd.append("source_chart", $("#kitSource").value);
+  fd.append("target_chart", $("#kitTarget").value);
+  fd.append("model", $("#kitModel").value);
+  fd.append("holdout_indices", kitState.holdout.join(","));
+  const manual = $("#kitCorners").value.trim();
+  if (manual) { fd.append("corners_mode", "manual"); fd.append("corners", manual); }
+  try {
+    const r = await fetch(`/kits/${encodeURIComponent(kitState.name)}/cross_calibrate`,
+                          { method: "POST", body: fd });
+    const data = await r.json();
+    if (!r.ok) {
+      kitErr((data.error || "calibration failed") +
+             (data.refused ? " — the kernel refused to emit a low-confidence mapping." : ""));
+      return;
+    }
+    renderKitResults(data);
+  } catch (err) {
+    kitErr("request failed: " + err);
+  } finally {
+    $("#kitCalBtn").disabled = false;
+  }
+});
+
+function renderKitResults(data) {
+  $("#kitResults").style.display = "block";
+  $("#kitSrcPreview").src = data.source.preview || "";
+  $("#kitTgtPreview").src = data.target.preview || "";
+  $("#kitScenePreview").src = data.scene.preview || "";
+
+  const s = data.source_fit;
+  const t = data.target_delta_e2000;
+  const assess = data.transfer_assessment;
+  const cards = [
+    card("source train ΔE", s.train.deltaE2000_mean),
+    card("source CV ΔE", s.cv.deltaE2000_mean),
+    card("source holdout ΔE", s.holdout ? s.holdout.deltaE2000_mean : "—"),
+    card("target mean ΔE", t.mean),
+    card("target max ΔE", t.max),
+    card("target holdout ΔE", t.holdout_mean ?? "—"),
+    `<div class="card"><div class="k">transfer assessment</div>
+       <div class="v"><span class="tag ${assess}">${assess}</span></div></div>`,
+    card("fit / holdout patches", `${data.controls.fit_patch_count} / ${data.controls.holdout_patch_count}`),
+  ];
+  $("#kitCards").innerHTML = cards.join("");
+
+  const warns = [];
+  if (assess === "mismatch") {
+    warns.push("The target chart does not belong to the source camera: the fitted mapping leaves large residuals. This is the kit's negative-control behaviour, not a bug.");
+  } else if (assess === "weak") {
+    warns.push("Transfer is weak — the target camera/illumination differs enough that the mapping is only approximately valid.");
+  }
+  s.warnings.forEach(w => warns.push(w));
+  (data.target_warnings || []).forEach(w => warns.push("target white balance: " + w));
+  $("#kitWarn").innerHTML = warns.map(w => `<li>${w}</li>`).join("") ||
+    '<li class="muted">no warnings</li>';
+
+  $("#kitPatchRows").innerHTML = data.target_patch_residuals.map(p => {
+    const oc = p.adopted_srgb.map(v => Math.round(v * 255));
+    const rl = p.reference_lab_d50.map(v => v.toFixed(1)).join(", ");
+    const pl = p.predicted_lab_d50.map(v => v.toFixed(1)).join(", ");
+    const rr = p.residual_linear_rgb.map(v => (v >= 0 ? "+" : "") + v.toFixed(4)).join(", ");
+    return `<tr class="${p.role === 'holdout' ? 'role-holdout' : ''}">
+      <td>${p.index}</td><td>${p.name}</td>
+      <td><span class="sw" style="background:rgb(${oc.join(",")})"></span></td>
+      <td class="num">${rl}</td><td class="num">${pl}</td>
+      <td class="num">${p.delta_e2000}</td><td class="num">${rr}</td>
+      <td><span class="role ${p.role === 'holdout' ? 'role-excl' : 'role-train'}">${p.role}</span></td>
+    </tr>`;
+  }).join("");
+
+  $("#kitSceneRows").innerHTML = (data.scene.blocks || []).map(b => {
+    const c = b.reference_srgb.map(v => Math.round(v * 255));
+    return `<tr>
+      <td>${b.block}</td>
+      <td><span class="sw" style="background:rgb(${c.join(",")})"></span></td>
+      <td class="num">${b.delta_e2000_mean}</td>
+      <td class="num">${b.delta_e2000_p95}</td>
+      <td class="num">${b.pixel_rect_y0y1x0x1.join(", ")}</td>
+    </tr>`;
+  }).join("") || '<tr><td colspan="5" class="muted">no scene evidence</td></tr>';
+
+  $("#kitDlMapping").href = data.download_mapping;
+}
+
+loadKitList();
 </script>
 </body>
 </html>

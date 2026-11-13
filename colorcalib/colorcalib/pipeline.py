@@ -102,6 +102,37 @@ def normalize_white(
     return cam_linear * gains[np.newaxis, :]
 
 
+def scene_white_gains(
+    cam_linear: np.ndarray,
+    ref_linear: np.ndarray,
+    neutral_indices: list[int] | None,
+    warnings: list[str] | None = None,
+) -> np.ndarray:
+    """White-balance gains for a target image, with the same guard rails as
+    the fit path.
+
+    Shared by :func:`calibrate` and by cross-camera application so a target
+    image with too few trustworthy neutrals never silently gets fabricated
+    unity gains: callers receive the gains *and* a warning string when the
+    neutral row is insufficient, and the extreme-gain clamp is identical.
+    """
+    note: list[str] = warnings if warnings is not None else []
+    usable_neutral = list(neutral_indices or [])
+    if len(usable_neutral) < 2:
+        note.append(
+            "fewer than 2 usable neutral patches; white-balance gains left at "
+            "unity and channel balance delegated to the fitted matrix"
+        )
+        return np.ones(3)
+    gains = estimate_scene_white_gains(cam_linear, ref_linear, usable_neutral)
+    if np.any(gains <= 0) or np.max(gains) / max(np.min(gains), 1e-6) > 4:
+        note.append(
+            f"extreme white-balance gains {gains.round(2)} — check illumination"
+        )
+        gains = np.clip(gains, 0.25, 4.0)
+    return gains
+
+
 # ---------------------------------------------------------------------------
 # Design matrices and solvers
 # ---------------------------------------------------------------------------
@@ -324,6 +355,7 @@ class CalibrationResult:
     detection_summary: dict
     warnings: list[str]
     reference_space: dict
+    holdout_summary: dict | None = None
     extrapolation: dict = field(default_factory=dict)
 
     def to_json(self, path: str) -> None:
@@ -338,9 +370,21 @@ def calibrate(
     model: str = "matrix3",
     neutral_indices: list[int] | None = None,
     validation_indices: list[int] | None = None,
+    holdout_indices: list[int] | None = None,
     robust: bool = True,
 ) -> CalibrationResult:
-    """Run the full fit with train/validation separation and diagnostics."""
+    """Run the full fit with train/validation separation and diagnostics.
+
+    ``validation_indices`` only relabels already-usable patches as *forced
+    validation*: they still help fit the shipped mapping and are shown so a
+    caller can annotate an external holdout image.
+
+    ``holdout_indices`` is stronger: those patches are removed from the
+    production fit *entirely* and are never used to estimate white balance or
+    the cross-validation folds. Their residuals are reported separately in
+    ``holdout_summary`` — an independent check that the mapping generalizes to
+    colors it never saw, rather than a training residual dressed up as one.
+    """
     if model not in MIN_SAMPLES:
         raise ValueError(f"model must be one of {list(MIN_SAMPLES)}")
     n = detection.rows * detection.cols
@@ -358,54 +402,51 @@ def calibrate(
     cam_linear = camera_encoded_to_linear(cam_enc)
     ref_linear = reference_lab_d50_to_linear_srgb(ref_lab_d50)
 
-    # White balance from usable neutral patches only.
+    holdout_set = {i for i in (holdout_indices or []) if usable[i]}
+    if holdout_set and len(holdout_set) >= int(usable.sum()):
+        raise InsufficientSamplesError(
+            "holdout patches leave no samples for fitting"
+        )
+
+    # White balance from usable neutral patches only, excluding held-out ones
+    # so the holdout measurement stays independent of the fitted transform.
     if neutral_indices is None:
         neutral_indices = [
             i for i, nm in enumerate(names) if "neutral" in nm or nm == "white"
         ]
-    usable_neutral = [i for i in neutral_indices if usable[i]]
-    wb_fallback = False
-    if len(usable_neutral) < 2:
-        # No trustworthy neutral row: do NOT invent white gains (an unconstrained
-        # estimate here goes negative on skewed data). Keep unity gains and let
-        # the fitted matrix absorb the channel imbalance, while flagging the
-        # reduced confidence in white-point accuracy.
-        warnings.append(
-            "fewer than 2 usable neutral patches; white-balance gains left at "
-            "unity and channel balance delegated to the fitted matrix"
-        )
-        gains = np.ones(3)
-        wb_fallback = True
-    else:
-        gains = estimate_scene_white_gains(cam_linear, ref_linear, usable_neutral)
-        if np.any(gains <= 0) or np.max(gains) / max(np.min(gains), 1e-6) > 4:
-            warnings.append(
-                f"extreme white-balance gains {gains.round(2)} — check illumination"
-            )
-            gains = np.clip(gains, 0.25, 4.0)
+    usable_neutral = [
+        i for i in neutral_indices if usable[i] and i not in holdout_set
+    ]
+    wb_note: list[str] = []
+    gains = scene_white_gains(cam_linear, ref_linear, usable_neutral, wb_note)
+    warnings.extend(wb_note)
     cam_wb = normalize_white(cam_linear, gains)
 
     usable_idx = np.where(usable)[0]
-    if len(usable_idx) < MIN_SAMPLES[model]:
+    fit_idx = np.array(
+        [i for i in usable_idx if i not in holdout_set], dtype=int
+    )
+    if len(fit_idx) < MIN_SAMPLES[model]:
         raise InsufficientSamplesError(
-            f"only {len(usable_idx)} usable patches; {model} needs "
+            f"only {len(fit_idx)} usable patches after holdout; {model} needs "
             f"{MIN_SAMPLES[model]}. Refusing to emit a high-precision config."
         )
 
     # --- Validation strategy -------------------------------------------------
-    # K-fold cross-validation: every usable patch gets an honest ΔE from a
-    # model that never saw it. The shipped mapping is then refit on ALL usable
+    # K-fold cross-validation: every fitted patch gets an honest ΔE from a
+    # model that never saw it. The shipped mapping is then refit on all fitted
     # patches, so validation never shrinks the production training set.
+    # Held-out patches are excluded from the folds so they stay independent.
     k_folds = 4
-    if len(usable_idx) < 2 * MIN_SAMPLES[model]:
+    if len(fit_idx) < 2 * MIN_SAMPLES[model]:
         k_folds = 3
-    fold_ids = kfold_indices(len(usable_idx), k_folds)
+    fold_ids = kfold_indices(len(fit_idx), k_folds)
 
     cv_delta: dict[int, float] = {}
     cv_resid: dict[int, np.ndarray] = {}
     for k in range(k_folds):
-        tr = usable_idx[fold_ids != k]
-        va = usable_idx[fold_ids == k]
+        tr = fit_idx[fold_ids != k]
+        va = fit_idx[fold_ids == k]
         if len(tr) < MIN_SAMPLES[model]:
             continue
         fold_coef, _ = fit_model(cam_wb[tr], ref_linear[tr], model, robust=robust)
@@ -424,21 +465,45 @@ def calibrate(
         "deltaE2000_p95": float(np.percentile(cv_values, 95)),
         "deltaE2000_max": float(np.max(cv_values)),
         "method": f"{k_folds}-fold cross-validation",
+        "n_patches": int(len(cv_values)),
     }
 
     # Optional fixed holdout (e.g. separate chart image) overrides fold roles.
-    forced_val = {i for i in (validation_indices or []) if usable[i]}
+    forced_val = {
+        i for i in (validation_indices or []) if usable[i] and i not in holdout_set
+    }
 
-    # Production fit on every usable patch.
+    # Production fit on every fitted patch (never on holdout patches).
     coef, fit_meta = fit_model(
-        cam_wb[usable_idx], ref_linear[usable_idx], model, robust=robust
+        cam_wb[fit_idx], ref_linear[fit_idx], model, robust=robust
     )
     irls = np.asarray(fit_meta["irls_weights"])
     full_ev = evaluate_patches(
-        cam_wb[usable_idx], ref_linear[usable_idx], coef, model,
-        [names[i] for i in usable_idx],
+        cam_wb[fit_idx], ref_linear[fit_idx], coef, model,
+        [names[i] for i in fit_idx],
     )
     train_summary = summarize_errors(full_ev)
+
+    # Independent check: predict the held-out patches with the production
+    # mapping. These patches contributed nothing to gains, folds, or the fit.
+    holdout_summary = None
+    holdout_ev = None
+    if holdout_set:
+        hold_idx = np.array(sorted(holdout_set), dtype=int)
+        holdout_ev = evaluate_patches(
+            cam_wb[hold_idx], ref_linear[hold_idx], coef, model,
+            [names[i] for i in hold_idx],
+        )
+        holdout_summary = summarize_errors(holdout_ev)
+        holdout_summary["n_patches"] = int(len(hold_idx))
+        holdout_summary["patches"] = [names[i] for i in hold_idx]
+        holdout_summary["method"] = "held-out patches excluded from fit and WB"
+        gap_h = holdout_summary["deltaE2000_mean"] - train_summary["deltaE2000_mean"]
+        if gap_h > 4.0:
+            warnings.append(
+                f"held-out mean ΔE2000 exceeds training residual by {gap_h:.2f} "
+                "— the mapping is extrapolating, not generalizing"
+            )
 
     gap = validation_summary["deltaE2000_mean"] - train_summary["deltaE2000_mean"]
     if gap > 3.0:
@@ -450,16 +515,24 @@ def calibrate(
     de_map = dict(zip(full_ev["names"], full_ev["delta_e2000"]))
     res_map = {nm: row for nm, row in zip(full_ev["names"], full_ev["rgb_residual"])}
     w_map = {nm: float(w) for nm, w in
-             zip([names[i] for i in usable_idx], irls)}
+             zip([names[i] for i in fit_idx], irls)}
+    hold_de = dict(
+        zip(holdout_ev["names"], holdout_ev["delta_e2000"])
+    ) if holdout_ev is not None else {}
+    hold_res = dict(
+        zip(holdout_ev["names"], holdout_ev["rgb_residual"])
+    ) if holdout_ev is not None else {}
 
     records: list[PatchRecord] = []
     for i, d in enumerate(diag):
         if not usable[i]:
             role = "excluded"
+        elif i in holdout_set:
+            role = "holdout"
         elif i in forced_val:
             role = "validation"
         else:
-            # every usable patch participates in the final fit AND was held out
+            # every fitted patch participates in the final fit AND was held out
             # of exactly one CV fold; label folds for transparent provenance.
             role = "train+cv"
         records.append(
@@ -480,21 +553,29 @@ def calibrate(
                 },
                 role=role,
                 delta_e2000=(
-                    round(float(de_map[d.name]), 3) if d.name in de_map else None
+                    round(float(hold_de[d.name]), 3) if d.name in hold_de
+                    else round(float(de_map[d.name]), 3) if d.name in de_map
+                    else None
                 ),
                 residual_linear_rgb=(
-                    res_map[d.name].round(6).tolist() if d.name in res_map else None
+                    hold_res[d.name].round(6).tolist() if d.name in hold_res
+                    else res_map[d.name].round(6).tolist() if d.name in res_map
+                    else None
                 ),
                 irls_weight=(round(w_map[d.name], 3) if d.name in w_map else None),
             )
         )
     # Expose the honest cross-validated per-patch error alongside the fit
-    # residual so the UI can show both numbers per patch.
+    # residual so the UI can show both numbers per patch. Held-out patches get
+    # their independent prediction error instead of a CV number.
     for rec in records:
         gi = rec.index
         if gi in cv_delta:
             rec.diagnoses["cv_delta_e2000"] = round(cv_delta[gi], 3)
             rec.diagnoses["cv_residual_linear_rgb"] = cv_resid[gi].round(6).tolist()
+        if rec.role == "holdout":
+            rec.diagnoses["holdout"] = True
+            rec.diagnoses["holdout_delta_e2000"] = rec.delta_e2000
 
     # Interpretable warnings about fit quality.
     if train_summary["deltaE2000_mean"] > 4.0:
@@ -517,8 +598,12 @@ def calibrate(
         "poly3": ["R", "G", "B", "RG", "RB", "GB", "R2", "G2", "B2", "1"],
     }[model]
 
-    fit_meta["input_range_min"] = cam_wb[usable_idx].min(axis=0).round(6).tolist()
-    fit_meta["input_range_max"] = cam_wb[usable_idx].max(axis=0).round(6).tolist()
+    fit_meta["input_range_min"] = cam_wb[fit_idx].min(axis=0).round(6).tolist()
+    fit_meta["input_range_max"] = cam_wb[fit_idx].max(axis=0).round(6).tolist()
+
+    def _rounded(d):
+        return {k: (round(v, 4) if isinstance(v, float) else v)
+                for k, v in d.items()}
 
     return CalibrationResult(
         model=model,
@@ -526,12 +611,8 @@ def calibrate(
         white_gains=gains.round(6).tolist(),
         feature_names=feature_names,
         fit_meta=fit_meta,
-        train_summary={k: (round(v, 4) if isinstance(v, float) else v)
-                       for k, v in train_summary.items()},
-        validation_summary={
-            k: (round(v, 4) if isinstance(v, float) else v)
-            for k, v in validation_summary.items()
-        },
+        train_summary=_rounded(train_summary),
+        validation_summary=_rounded(validation_summary),
         patch_records=[asdict(r) for r in records],
         detection_summary={
             "method": detection.detection_method,
@@ -540,9 +621,15 @@ def calibrate(
             "cols": detection.cols,
             "n_usable": int(usable.sum()),
             "n_excluded": int((~usable).sum()),
+            "n_fitted": int(len(fit_idx)),
+            "n_holdout": int(len(holdout_set)),
+            "holdout_indices": sorted(holdout_set),
         },
         warnings=warnings,
         reference_space=ref_space,
+        holdout_summary=(
+            _rounded(holdout_summary) if holdout_summary is not None else None
+        ),
     )
 
 

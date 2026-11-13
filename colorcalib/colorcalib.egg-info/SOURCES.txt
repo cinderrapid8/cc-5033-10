@@ -7,10 +7,12 @@ colorcalib/colorspace.py
 colorcalib/detection.py
 colorcalib/pipeline.py
 colorcalib/report.py
+colorcalib/simulate.py
 colorcalib.egg-info/PKG-INFO
 colorcalib.egg-info/SOURCES.txt
 colorcalib.egg-info/dependency_links.txt
 colorcalib.egg-info/entry_points.txt
 colorcalib.egg-info/requires.txt
 colorcalib.egg-info/top_level.txt
+tests/test_camera_kit.py
 tests/test_pipeline.py
